@@ -16,6 +16,6 @@ internal class PantryConfiguration : IEntityTypeConfiguration<Pantry>
             .ValueGeneratedOnAdd();
 
         builder.Property(pantry => pantry.Name)
-            .HasMaxLength(400);
+            .HasMaxLength(StringLength.Medium);
     }
 }
