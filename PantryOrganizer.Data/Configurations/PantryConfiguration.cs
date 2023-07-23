@@ -4,16 +4,13 @@ using PantryOrganizer.Data.Models;
 
 namespace PantryOrganizer.Data.Configurations;
 
-internal class PantryConfiguration : IEntityTypeConfiguration<Pantry>
+internal class PantryConfiguration : GuidEntityConfiguration<Pantry>
 {
-    public void Configure(EntityTypeBuilder<Pantry> builder)
+    public override void Configure(EntityTypeBuilder<Pantry> builder)
     {
+        base.Configure(builder);
+
         builder.ToTable(nameof(Pantry));
-
-        builder.HasKey(item => item.Id);
-
-        builder.Property(item => item.Id)
-            .ValueGeneratedOnAdd();
 
         builder.Property(pantry => pantry.Name)
             .HasMaxLength(StringLength.Medium);
