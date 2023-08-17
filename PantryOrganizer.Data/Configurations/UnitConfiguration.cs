@@ -15,6 +15,9 @@ internal class UnitConfiguration : GuidEntityConfiguration<Unit>
         builder.Property(model => model.Name)
             .HasMaxLength(StringLength.Short);
 
+        builder.HasIndex(model => model.DimensionId)
+            .IsUnique()
+            .HasFilter($"[{nameof(Unit.IsBase)}] = 1");
     }
 }
 
