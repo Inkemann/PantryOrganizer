@@ -1,21 +1,7 @@
 ﻿namespace PantryOrganizer.Application.Query;
 
-public record SortingParameter
+public record SortingParameter(SortingDirection Direction, int Prio)
 {
-    public SortingParameter() : this(SortingDirection.None, default)
-    { }
-
-    public SortingParameter(
-        SortingDirection direction,
-        int priority)
-    {
-        Direction = direction;
-        Prio = priority;
-    }
-
-    public SortingDirection Direction { get; set; }
-    public int Prio { get; set; }
-
     public bool IsEnabled => Direction != SortingDirection.None;
 }
 

@@ -47,7 +47,7 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
         var defaultSortings = rules.SelectWhere(
             rule => rule.GetDefault(),
             (_, parameter) => parameter != null && parameter.IsEnabled,
-            (rule, parameter) => (Rule: rule, Parameter: parameter!));
+            (rule, parameter) => (rule, parameter!));
 
         return defaultSortings.Any()
             ? AbstractSorter<TSorting, TData>.ApplySortings(query, defaultSortings)
@@ -73,7 +73,7 @@ public class SorterRule<TSorting, TProperty, TData> :
     ISorterRule<TSorting, TData>
 {
     public Expression<Func<TSorting, SortingParameter?>> SortingSelector { get; private set; }
-        = x => new SortingParameter();
+        = x => new(SortingDirection.None, default);
     public Expression<Func<TData, TProperty>> DataSelector { get; }
     public SortingParameter? DefaultParameter { get; private set; }
 
