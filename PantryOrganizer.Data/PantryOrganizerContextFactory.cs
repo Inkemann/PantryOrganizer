@@ -8,12 +8,14 @@ internal class PantryOrganizerContextFactory : IDesignTimeDbContextFactory<Pantr
 {
     public PantryOrganizerContext CreateDbContext(string[] args)
     {
-        IConfigurationRoot configuration = new ConfigurationBuilder()
+        var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json")
             .Build();
+
         var builder = new DbContextOptionsBuilder<PantryOrganizerContext>();
         builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+
         return new PantryOrganizerContext(builder.Options);
     }
 }
