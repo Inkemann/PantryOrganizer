@@ -13,9 +13,6 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
     protected ISorterRuleBuilder<TSorting> SortBy<TProperty>(
         Expression<Func<TData, TProperty>> selector)
     {
-        if (selector == null)
-            throw new ArgumentNullException(nameof(selector));
-
         var rule = new SorterRule<TProperty>(selector);
         rules.Add(rule);
         return rule;
@@ -23,9 +20,6 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
 
     public IOrderedQueryable<TData> Apply(IQueryable<TData> query, TSorting? sortingInput)
     {
-        if (query == null)
-            throw new ArgumentNullException(nameof(query));
-
         if (sortingInput != null)
         {
             var sortings = GetSortings(sortingInput)
@@ -81,7 +75,7 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
         private SortingParameter? defaultParameter;
 
         public SorterRule(Expression<Func<TData, TProperty>> selector)
-            => dataSelector = selector ?? throw new ArgumentNullException(nameof(selector));
+            => dataSelector = selector;
 
         public SortingParameter? GetParameter(TSorting sortingInput)
             => sortingSelector.Compile()(sortingInput);
@@ -114,7 +108,7 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
         public ISorterRuleBuilder<TSorting> Using(
             Expression<Func<TSorting, SortingParameter?>> selector)
         {
-            sortingSelector = selector ?? throw new ArgumentNullException(nameof(selector));
+            sortingSelector = selector;
             return this;
         }
 

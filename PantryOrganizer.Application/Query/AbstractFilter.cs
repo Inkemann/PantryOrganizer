@@ -19,9 +19,6 @@ public abstract class AbstractFilter<TFilter, TData> :
     protected IFilterRuleBuilder<TFilter, TProperty> FilterFor<TProperty>(
         Expression<Func<TData, TProperty?>> selector)
     {
-        if (selector == null)
-            throw new ArgumentNullException(nameof(selector));
-
         var rule = new FilterRule<TProperty>(this, selector);
         rules.Add(rule);
         return rule;
@@ -59,10 +56,8 @@ public abstract class AbstractFilter<TFilter, TData> :
             AbstractFilter<TFilter, TData> parentFilter,
             Expression<Func<TData, TProperty?>> dataSelector)
         {
-            this.parentFilter = parentFilter
-                ?? throw new ArgumentNullException(nameof(parentFilter));
-            this.dataSelector = dataSelector
-                ?? throw new ArgumentNullException(nameof(dataSelector));
+            this.parentFilter = parentFilter;
+            this.dataSelector = dataSelector;
         }
 
         public IQueryable<TData> Apply(IQueryable<TData> query, TFilter filterInput)
@@ -85,17 +80,13 @@ public abstract class AbstractFilter<TFilter, TData> :
         public IFilterRuleBuilder<TFilter, TProperty> Using(
             Expression<Func<TFilter, TProperty?>> filterSelector)
         {
-            this.filterSelector = filterSelector
-                ?? throw new ArgumentNullException(nameof(filterSelector));
+            this.filterSelector = filterSelector;
             return this;
         }
 
         public IFilterRuleBuilder<TFilter, TProperty> When(
             Func<TProperty?, bool> condition)
         {
-            if (condition == null)
-                throw new ArgumentNullException(nameof(condition));
-
             this.condition = value => condition((TProperty?)value);
             return this;
         }
@@ -103,7 +94,7 @@ public abstract class AbstractFilter<TFilter, TData> :
         public IFilterRuleBuilder<TFilter, TProperty> Predicate(
             Expression<Func<TProperty?, TProperty?, bool>> filter)
         {
-            this.filter = filter ?? throw new ArgumentNullException(nameof(filter));
+            this.filter = filter;
             return this;
         }
 
