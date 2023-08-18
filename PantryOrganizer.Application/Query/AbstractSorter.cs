@@ -28,20 +28,11 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
 
         if (sortingInput != null)
         {
-            var sortings = new List<(ISorterRule<TSorting, TData>, SortingParameter Parameter)>();
+            var sortings = GetSortings(sortingInput)
+                .OrderBy(x => x.Parameter.Priority).ToList();
 
-            foreach (var rule in rules)
-            {
-                var parameter = rule.GetParameter(sortingInput);
-
-                if (parameter != null && parameter.IsEnabled)
-                    sortings.Add((rule, parameter));
-            }
-
-            sortings = sortings.OrderBy(x => x.Parameter.Priority).ToList();
-
-            if (sortings.Count > 0)
-                return AbstractSorter<TSorting, TData>.ApplySortings(query, sortings);
+            if (sortings.Any())
+                return ApplySortings(query, sortings);
         }
 
         var defaultSortings = rules.SelectWhere(
@@ -50,9 +41,21 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
             (rule, parameter) => (rule, parameter!));
 
         return defaultSortings.Any()
-            ? AbstractSorter<TSorting, TData>.ApplySortings(query, defaultSortings)
+            ? ApplySortings(query, defaultSortings)
             : throw new InvalidOperationException(
                 "A default sorting or at least one sorting parameter has to be provided.");
+    }
+
+    private IEnumerable<(ISorterRule<TSorting, TData>, SortingParameter Parameter)> GetSortings(
+        TSorting sortingInput)
+    {
+        foreach (var rule in rules)
+        {
+            var parameter = rule.GetParameter(sortingInput);
+
+            if (parameter != null && parameter.IsEnabled)
+                yield return (rule, parameter);
+        }
     }
 
     private static IOrderedQueryable<TData> ApplySortings(
