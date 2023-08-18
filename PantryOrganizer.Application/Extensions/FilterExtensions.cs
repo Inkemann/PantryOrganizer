@@ -5,9 +5,41 @@ namespace PantryOrganizer.Application.Extensions;
 
 public static class DefaultFilterExtensions
 {
-    public static IFilterRuleBuilder<T1, T2> Equals<T1, T2>(
-        this IFilterRuleBuilder<T1, T2> filterRule,
-        Expression<Func<T2, T1>> selector)
+    public static IFilterBuilder<TFilter, TData> IgnoreNull<TFilter, TData>(
+        this IFilterBuilder<TFilter, TData> filter)
+        => filter.AddConditionForType<object>(value => value != null);
+
+    public static IFilterBuilder<TFilter, TData> IgnoreDefault<TFilter, TData>(
+        this IFilterBuilder<TFilter, TData> filter)
+        => filter.AddConditionForType<object>(value => value != default);
+
+    public static IFilterBuilder<TFilter, string> IgnoreEmpty<TFilter>(
+        this IFilterBuilder<TFilter, string> filter)
+        => filter.AddConditionForType<string>(value => !string.IsNullOrEmpty(value));
+
+    public static IFilterBuilder<TFilter, string> IgnoreWhitespace<TFilter>(
+        this IFilterBuilder<TFilter, string> filter)
+        => filter.AddConditionForType<string>(value => !string.IsNullOrWhiteSpace(value));
+
+    public static IFilterRuleBuilder<TFilter, TProperty> IgnoreNull<TFilter, TProperty>(
+        this IFilterRuleBuilder<TFilter, TProperty> filterRule)
+        => filterRule.When(value => value != null);
+
+    public static IFilterRuleBuilder<TFilter, TProperty> IgnoreDefault<TFilter, TProperty>(
+        this IFilterRuleBuilder<TFilter, TProperty> filterRule)
+        => filterRule.When(value => EqualityComparer<TProperty>.Default.Equals(value, default));
+
+    public static IFilterRuleBuilder<TFilter, string> IgnoreEmpty<TFilter>(
+        this IFilterRuleBuilder<TFilter, string> filterRule)
+        => filterRule.When(value => !string.IsNullOrEmpty(value));
+
+    public static IFilterRuleBuilder<TFilter, string> IgnoreWhitespace<TFilter>(
+        this IFilterRuleBuilder<TFilter, string> filterRule)
+        => filterRule.When(value => !string.IsNullOrWhiteSpace(value));
+
+    public static IFilterRuleBuilder<TFilter, TProperty> Equals<TFilter, TProperty>(
+        this IFilterRuleBuilder<TFilter, TProperty> filterRule,
+        Expression<Func<TFilter, TProperty?>> selector)
     {
         static Expression predicate(Expression dataParameter, Expression propertyParameter)
             => Expression.Equal(dataParameter, propertyParameter);
@@ -15,9 +47,9 @@ public static class DefaultFilterExtensions
         return SetSelectorPredicate(filterRule, selector, predicate);
     }
 
-    public static IFilterRuleBuilder<T1, T2> GreaterThan<T1, T2>(
-        this IFilterRuleBuilder<T1, T2> filterRule,
-        Expression<Func<T2, T1>> selector)
+    public static IFilterRuleBuilder<TFilter, TProperty> GreaterThan<TFilter, TProperty>(
+        this IFilterRuleBuilder<TFilter, TProperty> filterRule,
+        Expression<Func<TFilter, TProperty?>> selector)
     {
         static Expression predicate(Expression dataParameter, Expression propertyParameter)
             => Expression.GreaterThan(dataParameter, propertyParameter);
@@ -25,9 +57,9 @@ public static class DefaultFilterExtensions
         return SetSelectorPredicate(filterRule, selector, predicate);
     }
 
-    public static IFilterRuleBuilder<T1, T2> GreaterThanEquals<T2, T1>(
-        this IFilterRuleBuilder<T1, T2> filterRule,
-        Expression<Func<T2, T1>> selector)
+    public static IFilterRuleBuilder<TFilter, TProperty> GreaterThanOrEquals<TFilter, TProperty>(
+        this IFilterRuleBuilder<TFilter, TProperty> filterRule,
+        Expression<Func<TFilter, TProperty?>> selector)
     {
         static Expression predicate(Expression dataParameter, Expression propertyParameter)
             => Expression.GreaterThanOrEqual(dataParameter, propertyParameter);
@@ -35,9 +67,9 @@ public static class DefaultFilterExtensions
         return SetSelectorPredicate(filterRule, selector, predicate);
     }
 
-    public static IFilterRuleBuilder<T1, T2> LessThan<T1, T2>(
-        this IFilterRuleBuilder<T1, T2> filterRule,
-        Expression<Func<T2, T1>> selector)
+    public static IFilterRuleBuilder<TFilter, TProperty> LessThan<TFilter, TProperty>(
+        this IFilterRuleBuilder<TFilter, TProperty> filterRule,
+        Expression<Func<TFilter, TProperty?>> selector)
     {
         static Expression predicate(Expression dataParameter, Expression propertyParameter)
             => Expression.LessThan(dataParameter, propertyParameter);
@@ -45,9 +77,9 @@ public static class DefaultFilterExtensions
         return SetSelectorPredicate(filterRule, selector, predicate);
     }
 
-    public static IFilterRuleBuilder<T1, T2> LessThanEquals<T1, T2>(
-        this IFilterRuleBuilder<T1, T2> filterRule,
-        Expression<Func<T2, T1>> selector)
+    public static IFilterRuleBuilder<TFilter, TProperty> LessThanOrEquals<TFilter, TProperty>(
+        this IFilterRuleBuilder<TFilter, TProperty> filterRule,
+        Expression<Func<TFilter, TProperty?>> selector)
     {
         static Expression predicate(Expression dataParameter, Expression propertyParameter)
             => Expression.LessThanOrEqual(dataParameter, propertyParameter);
@@ -55,24 +87,24 @@ public static class DefaultFilterExtensions
         return SetSelectorPredicate(filterRule, selector, predicate);
     }
 
-    public static IFilterRuleBuilder<string, T> Contains<T>(
-        this IFilterRuleBuilder<string, T> filterRule,
-        Expression<Func<T, string>> selector)
+    public static IFilterRuleBuilder<T, string> Contains<T>(
+        this IFilterRuleBuilder<T, string> filterRule,
+        Expression<Func<T, string?>> selector)
         => SetStringMethodPredicate(filterRule, selector, nameof(string.Contains));
 
-    public static IFilterRuleBuilder<string, T> StartsWith<T>(
-        this IFilterRuleBuilder<string, T> filterRule,
-        Expression<Func<T, string>> selector)
+    public static IFilterRuleBuilder<T, string> StartsWith<T>(
+        this IFilterRuleBuilder<T, string> filterRule,
+        Expression<Func<T, string?>> selector)
         => SetStringMethodPredicate(filterRule, selector, nameof(string.StartsWith));
 
-    public static IFilterRuleBuilder<string, T> EndsWith<T>(
-        this IFilterRuleBuilder<string, T> filterRule,
-        Expression<Func<T, string>> selector)
+    public static IFilterRuleBuilder<T, string> EndsWith<T>(
+        this IFilterRuleBuilder<T, string> filterRule,
+        Expression<Func<T, string?>> selector)
         => SetStringMethodPredicate(filterRule, selector, nameof(string.EndsWith));
 
-    private static IFilterRuleBuilder<string, T> SetStringMethodPredicate<T>(
-        IFilterRuleBuilder<string, T> filterRule,
-        Expression<Func<T, string>> selector,
+    private static IFilterRuleBuilder<TFilter, string> SetStringMethodPredicate<TFilter>(
+        IFilterRuleBuilder<TFilter, string> filterRule,
+        Expression<Func<TFilter, string?>> selector,
         string methodName)
     {
         var method = typeof(string).GetMethod(
@@ -85,34 +117,28 @@ public static class DefaultFilterExtensions
         return SetSelectorPredicate(filterRule, selector, predicate);
     }
 
-    private static IFilterRuleBuilder<T1, T2> SetSelectorPredicate<T1, T2>(
-        IFilterRuleBuilder<T1, T2> filterRule,
-        Expression<Func<T2, T1>> selector,
+    private static IFilterRuleBuilder<TFilter, TProperty> SetSelectorPredicate<TFilter, TProperty>(
+        IFilterRuleBuilder<TFilter, TProperty> filterRule,
+        Expression<Func<TFilter, TProperty?>> selector,
         Func<Expression, Expression, Expression> filterBuilder)
     {
-        var predicate = BuildSelectorPredicate(selector, filterBuilder);
+        var predicate = BuildSelectorPredicate<TProperty>(filterBuilder);
 
+        filterRule.Using(selector);
         filterRule.Predicate(predicate);
         return filterRule;
     }
 
-    private static Expression<Func<T1?, T2, bool>> BuildSelectorPredicate<T1, T2>(
-        Expression<Func<T2, T1>> selector,
+    private static Expression<Func<T2?, T2?, bool>> BuildSelectorPredicate<T2>(
         Func<Expression, Expression, Expression> filterBuilder)
     {
-        var selectorParameter = Expression.Parameter(typeof(T2));
-        var selectorReplaced = selector.Body.ReplaceExpressions(
-            selector.Parameters.First(),
-            selectorParameter);
-
-        var dataParameter = Expression.Parameter(typeof(T1?));
-        var propertyParameter = Expression.Parameter(typeof(T1?));
+        var dataParameter = Expression.Parameter(typeof(T2?));
+        var propertyParameter = Expression.Parameter(typeof(T2?));
         var filter = filterBuilder(dataParameter, propertyParameter);
 
-        var filterReplaced = filter.ReplaceExpressions(dataParameter, selectorReplaced);
-        return Expression.Lambda<Func<T1?, T2, bool>>(
-            filterReplaced,
+        return Expression.Lambda<Func<T2?, T2?, bool>>(
+            filter,
             propertyParameter,
-            selectorParameter);
+            dataParameter);
     }
 }

@@ -3,20 +3,26 @@ using System.Linq.Expressions;
 
 namespace PantryOrganizer.Application.Query;
 
-public abstract class AbstractFilter<TFilter, TData> : IFilter<TFilter, TData>
+public abstract class AbstractFilter<TFilter, TData> :
+    IFilter<TFilter, TData>,
+    IFilterBuilder<TFilter, TData>
     where TFilter : class
     where TData : class
 {
-    private readonly IList<IFilterRule<TFilter, TData>> rules =
-        new List<IFilterRule<TFilter, TData>>();
+    private readonly IList<IFilterRule<TFilter, TData>> rules
+        = new List<IFilterRule<TFilter, TData>>();
+    private readonly IDictionary<Type, Func<object?, bool>> defaultConditions
+        = new Dictionary<Type, Func<object?, bool>>();
 
-    protected IFilterRuleBuilder<TProperty, TData> FilterFor<TProperty>(
-        Expression<Func<TFilter, TProperty?>> selector)
+    public IFilterBuilder<TFilter, TData> Defaults => this;
+
+    protected IFilterRuleBuilder<TFilter, TProperty> FilterFor<TProperty>(
+        Expression<Func<TData, TProperty?>> selector)
     {
         if (selector == null)
             throw new ArgumentNullException(nameof(selector));
 
-        var rule = new FilterRule<TFilter, TProperty, TData>(selector);
+        var rule = new FilterRule<TProperty>(this, selector);
         rules.Add(rule);
         return rule;
     }
@@ -31,48 +37,115 @@ public abstract class AbstractFilter<TFilter, TData> : IFilter<TFilter, TData>
 
         return query;
     }
-}
 
-public class FilterRule<TFilter, TProperty, TData> :
-    IFilterRuleBuilder<TProperty, TData>,
-    IFilterRule<TFilter, TData>
-{
-    protected Expression<Func<TFilter, TProperty?>> Selector { get; }
-    protected Expression<Func<TProperty?, bool>> Condition { get; set; } = EmptyCondition();
-    protected Expression<Func<TProperty?, TData, bool>> Filter { get; set; } = (x, y) => true;
-
-    public FilterRule(Expression<Func<TFilter, TProperty?>> selector)
-        => Selector = selector ?? throw new ArgumentNullException(nameof(selector));
-
-    public IQueryable<TData> Apply(IQueryable<TData> query, TFilter filterInput)
+    public IFilterBuilder<TFilter, TData> AddConditionForType<T>(Func<T?, bool> condition)
     {
-        var filterValue = Selector.Compile()(filterInput);
+        defaultConditions[typeof(T)] = value => condition((T?)value);
+        return this;
+    }
 
-        if (Condition.Compile()(filterValue))
+    public class FilterRule<TProperty> :
+        IFilterRule<TFilter, TData>,
+        IFilterRuleBuilder<TFilter, TProperty>
+    {
+        private readonly AbstractFilter<TFilter, TData> parentFilter;
+        private readonly Expression<Func<TData, TProperty?>> dataSelector;
+        private Expression<Func<TFilter, TProperty?>>? filterSelector;
+        private Func<object?, bool>? condition = null;
+        private Expression<Func<TProperty?, TProperty?, bool>> filter
+            = (filterProperty, dataProperty) => true;
+
+        public FilterRule(
+            AbstractFilter<TFilter, TData> parentFilter,
+            Expression<Func<TData, TProperty?>> dataSelector)
         {
-            var curriedFilter = Filter.ApplyPartial(filterValue);
-            query = query.Where(curriedFilter);
+            this.parentFilter = parentFilter
+                ?? throw new ArgumentNullException(nameof(parentFilter));
+            this.dataSelector = dataSelector
+                ?? throw new ArgumentNullException(nameof(dataSelector));
         }
 
-        return query;
-    }
+        public IQueryable<TData> Apply(IQueryable<TData> query, TFilter filterInput)
+        {
+            if (filterSelector == null)
+                throw new InvalidOperationException();
 
-    public IFilterRuleBuilder<TProperty, TData> When(
-        Expression<Func<TProperty?, bool>> condition)
-    {
-        Condition = condition ?? throw new ArgumentNullException(nameof(condition));
-        return this;
-    }
+            var filterValue = filterSelector.Compile()(filterInput);
 
-    public IFilterRuleBuilder<TProperty, TData> Predicate(
-        Expression<Func<TProperty?, TData, bool>> filter)
-    {
-        Filter = filter ?? throw new ArgumentNullException(nameof(filter));
-        return this;
-    }
+            if ((condition ?? GetConditionFromDefaults())(filterValue))
+            {
+                var preparedFilter = PrepareFilter();
+                var curriedFilter = preparedFilter.ApplyPartial(filterValue);
+                return query.Where(curriedFilter);
+            }
 
-    private static Expression<Func<TProperty?, bool>> EmptyCondition()
-        => typeof(TProperty) == typeof(string) ?
-            (value => !string.IsNullOrEmpty(value as string)) :
-            (value => EqualityComparer<TProperty>.Default.Equals(value, default(TProperty)));
+            return query;
+        }
+
+        public IFilterRuleBuilder<TFilter, TProperty> Using(
+            Expression<Func<TFilter, TProperty?>> filterSelector)
+        {
+            this.filterSelector = filterSelector
+                ?? throw new ArgumentNullException(nameof(filterSelector));
+            return this;
+        }
+
+        public IFilterRuleBuilder<TFilter, TProperty> When(
+            Func<TProperty?, bool> condition)
+        {
+            if (condition == null)
+                throw new ArgumentNullException(nameof(condition));
+
+            this.condition = value => condition((TProperty?)value);
+            return this;
+        }
+
+        public IFilterRuleBuilder<TFilter, TProperty> Predicate(
+            Expression<Func<TProperty?, TProperty?, bool>> filter)
+        {
+            this.filter = filter ?? throw new ArgumentNullException(nameof(filter));
+            return this;
+        }
+
+        private Expression<Func<TProperty?, TData, bool>> PrepareFilter()
+        {
+            var filterParameter = Expression.Parameter(typeof(TProperty?));
+            var dataParameter = Expression.Parameter(typeof(TData));
+
+            var dataBody = dataSelector.Body.ReplaceExpression(
+                dataSelector.Parameters[0],
+                dataParameter);
+            var filterBody = filter.Body
+                .ReplaceExpression(
+                    filter.Parameters[0],
+                    filterParameter)
+                .ReplaceExpression(
+                    filter.Parameters[1],
+                    dataBody);
+
+            return Expression.Lambda<Func<TProperty?, TData, bool>>(
+                filterBody,
+                filterParameter,
+                dataParameter);
+        }
+
+        private Func<object?, bool> GetConditionFromDefaults()
+        {
+            var propertyType = typeof(TProperty);
+            Func<object?, bool>? directTypeCondition = null;
+            var inheritedConditions = new List<Func<object?, bool>>();
+
+            foreach ((var type, var condition) in parentFilter.defaultConditions)
+            {
+                if (type == propertyType || type == Nullable.GetUnderlyingType(propertyType))
+                    directTypeCondition = condition;
+                else if (propertyType.IsAssignableFrom(type))
+                    inheritedConditions.Add(condition);
+            }
+
+            return directTypeCondition
+                ?? inheritedConditions.FirstOrDefault()
+                ?? (value => true);
+        }
+    }
 }
