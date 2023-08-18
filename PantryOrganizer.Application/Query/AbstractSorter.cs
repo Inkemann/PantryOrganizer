@@ -10,13 +10,13 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
     private readonly IList<ISorterRule<TSorting, TData>> rules
         = new List<ISorterRule<TSorting, TData>>();
 
-    protected ISorterRuleBuilder<TSorting> SortFor<TProperty>(
+    protected ISorterRuleBuilder<TSorting> SortBy<TProperty>(
         Expression<Func<TData, TProperty>> selector)
     {
         if (selector == null)
             throw new ArgumentNullException(nameof(selector));
 
-        var rule = new SorterRule<TSorting, TProperty, TData>(selector);
+        var rule = new SorterRule<TProperty>(selector);
         rules.Add(rule);
         return rule;
     }
@@ -28,7 +28,7 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
 
         if (sortingInput != null)
         {
-            var sortings = new List<(ISorterRule<TSorting, TData> Rule, SortingParameter Parameter)>();
+            var sortings = new List<(ISorterRule<TSorting, TData>, SortingParameter Parameter)>();
 
             foreach (var rule in rules)
             {
@@ -38,7 +38,7 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
                     sortings.Add((rule, parameter));
             }
 
-            sortings = sortings.OrderBy(x => x.Parameter.Prio).ToList();
+            sortings = sortings.OrderBy(x => x.Parameter.Priority).ToList();
 
             if (sortings.Count > 0)
                 return AbstractSorter<TSorting, TData>.ApplySortings(query, sortings);
@@ -51,7 +51,8 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
 
         return defaultSortings.Any()
             ? AbstractSorter<TSorting, TData>.ApplySortings(query, defaultSortings)
-            : throw new Exception("A default sorting or at least one sorting parameter has to be provided.");
+            : throw new InvalidOperationException(
+                "A default sorting or at least one sorting parameter has to be provided.");
     }
 
     private static IOrderedQueryable<TData> ApplySortings(
@@ -66,52 +67,60 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
 
         return orderedQuery;
     }
-}
 
-public class SorterRule<TSorting, TProperty, TData> :
-    ISorterRuleBuilder<TSorting>,
-    ISorterRule<TSorting, TData>
-{
-    public Expression<Func<TSorting, SortingParameter?>> SortingSelector { get; private set; }
-        = x => new(SortingDirection.None, default);
-    public Expression<Func<TData, TProperty>> DataSelector { get; }
-    public SortingParameter? DefaultParameter { get; private set; }
-
-    public SorterRule(Expression<Func<TData, TProperty>> selector)
-        => DataSelector = selector ?? throw new ArgumentNullException(nameof(selector));
-
-    public SortingParameter? GetParameter(TSorting sortingInput)
-        => SortingSelector.Compile()(sortingInput);
-
-    public SortingParameter? GetDefault()
-        => DefaultParameter;
-
-    public IOrderedQueryable<TData> Apply(
-        IQueryable<TData> query,
-        SortingParameter parameter)
-        => parameter.Direction == SortingDirection.Descending ?
-            query.OrderByDescending(DataSelector) :
-            query.OrderBy(DataSelector);
-
-    public IOrderedQueryable<TData> Apply(
-        IOrderedQueryable<TData> query,
-        SortingParameter parameter)
-        => parameter.Direction == SortingDirection.Descending ?
-            query.ThenByDescending(DataSelector) :
-            query.ThenBy(DataSelector);
-
-    public ISorterRuleBuilder<TSorting> Using(
-        Expression<Func<TSorting, SortingParameter?>> selector)
+    public class SorterRule<TProperty> :
+        ISorterRuleBuilder<TSorting>,
+        ISorterRule<TSorting, TData>
     {
-        SortingSelector = selector ?? throw new ArgumentNullException(nameof(selector));
-        return this;
-    }
+        private readonly Expression<Func<TData, TProperty>> dataSelector;
+        private Expression<Func<TSorting, SortingParameter?>> sortingSelector
+            = x => new(null, default);
+        private SortingParameter? defaultParameter;
 
-    public ISorterRuleBuilder<TSorting> AsDefault(
-        SortingDirection direction = SortingDirection.Ascending,
-        int priority = 0)
-    {
-        DefaultParameter = new SortingParameter(direction, priority);
-        return this;
+        public SorterRule(Expression<Func<TData, TProperty>> selector)
+            => dataSelector = selector ?? throw new ArgumentNullException(nameof(selector));
+
+        public SortingParameter? GetParameter(TSorting sortingInput)
+            => sortingSelector.Compile()(sortingInput);
+
+        public SortingParameter? GetDefault()
+            => defaultParameter;
+
+        public IOrderedQueryable<TData> Apply(
+            IQueryable<TData> query,
+            SortingParameter parameter)
+            => parameter.Direction switch
+            {
+                SortingDirection.Ascending => query.OrderBy(dataSelector),
+                SortingDirection.Descending => query.OrderByDescending(dataSelector),
+                _ => throw new InvalidOperationException(
+                    $"Sorting direction {parameter.Direction} is not valid.")
+            };
+
+        public IOrderedQueryable<TData> Apply(
+            IOrderedQueryable<TData> query,
+            SortingParameter parameter)
+            => parameter.Direction switch
+            {
+                SortingDirection.Ascending => query.ThenBy(dataSelector),
+                SortingDirection.Descending => query.ThenByDescending(dataSelector),
+                _ => throw new InvalidOperationException(
+                    $"Sorting direction {parameter.Direction} is not valid.")
+            };
+
+        public ISorterRuleBuilder<TSorting> Using(
+            Expression<Func<TSorting, SortingParameter?>> selector)
+        {
+            sortingSelector = selector ?? throw new ArgumentNullException(nameof(selector));
+            return this;
+        }
+
+        public ISorterRuleBuilder<TSorting> AsDefault(
+            SortingDirection direction = SortingDirection.Ascending,
+            int priority = 0)
+        {
+            defaultParameter = new SortingParameter(direction, priority);
+            return this;
+        }
     }
 }
