@@ -12,8 +12,8 @@ public abstract class AbstractFilter<TFilter, TData> :
 {
     private readonly IList<IFilterRule<TFilter, TData>> rules
         = new List<IFilterRule<TFilter, TData>>();
-    private readonly IDictionary<Type, Func<object?, bool>> defaultConditions
-        = new Dictionary<Type, Func<object?, bool>>();
+    private readonly IDictionary<Type, Expression<Func<object?, bool>>> defaultConditions
+        = new Dictionary<Type, Expression<Func<object?, bool>>>();
 
     public IFilterBuilder<TFilter, TData> Defaults => this;
 
@@ -70,7 +70,7 @@ public abstract class AbstractFilter<TFilter, TData> :
     {
         protected readonly AbstractFilter<TFilter, TData> parentFilter;
         protected Expression<Func<TFilter, TProperty?>>? filterSelector;
-        protected Func<object?, bool>? condition = null;
+        protected Expression<Func<object?, bool>>? condition = null;
         protected Expression<Func<TProperty?, TProperty?, bool>> filter
             = (filterProperty, dataProperty) => true;
 
@@ -85,8 +85,8 @@ public abstract class AbstractFilter<TFilter, TData> :
 
             var filterValue = filterSelector.Compile()(filterInput);
 
-            var conditionFunction = condition ?? GetConditionFromDefaults();
-            if (conditionFunction(filterValue))
+            var conditionExpression = condition ?? GetConditionFromDefaults();
+            if (conditionExpression.Compile()(filterValue))
             {
                 var preparedFilter = PrepareFilter();
                 var curriedFilter = preparedFilter.ApplyPartial(filterValue);
@@ -104,9 +104,18 @@ public abstract class AbstractFilter<TFilter, TData> :
         }
 
         public IFilterRuleBuilder<TFilter, TProperty> When(
-            Func<TProperty?, bool> condition)
+            Expression<Func<TProperty?, bool>> condition)
         {
-            this.condition = value => condition((TProperty?)value);
+            var objectParameter = Expression.Parameter(typeof(object));
+
+            var conversionExpression = Expression.Convert(objectParameter, typeof(TProperty?));
+            var conditionWithConversion = condition.Body.ReplaceExpression(
+                condition.Parameters[0],
+                conversionExpression);
+
+            this.condition = Expression.Lambda<Func<object?, bool>>(
+                conditionWithConversion,
+                objectParameter);
             return this;
         }
 
@@ -119,11 +128,11 @@ public abstract class AbstractFilter<TFilter, TData> :
 
         protected abstract Expression<Func<TProperty?, TData, bool>> PrepareFilter();
 
-        private Func<object?, bool> GetConditionFromDefaults()
+        private Expression<Func<object?, bool>> GetConditionFromDefaults()
         {
             var propertyType = typeof(TProperty);
-            Func<object?, bool>? directTypeCondition = null;
-            var inheritedConditions = new List<Func<object?, bool>>();
+            Expression<Func<object?, bool>>? directTypeCondition = null;
+            var inheritedConditions = new List<Expression<Func<object?, bool>>>();
 
             foreach ((var type, var condition) in parentFilter.defaultConditions)
             {

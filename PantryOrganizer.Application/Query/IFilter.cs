@@ -26,5 +26,5 @@ public interface IFilterRuleBuilder<TFilter, TProperty>
         Expression<Func<TFilter, TProperty?>> filterSelector);
 
     public IFilterRuleBuilder<TFilter, TProperty> When(
-        Func<TProperty?, bool> condition);
+        Expression<Func<TProperty?, bool>> condition);
 }
