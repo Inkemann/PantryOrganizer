@@ -126,9 +126,9 @@ public abstract class AbstractFilter<TFilter, TData> :
 
             foreach ((var type, var condition) in parentFilter.defaultConditions)
             {
-                if (type == propertyType || type == Nullable.GetUnderlyingType(propertyType))
+                if (type == propertyType)
                     directTypeCondition = condition;
-                else if (propertyType.IsAssignableFrom(type))
+                else if (type.IsAssignableFrom(propertyType))
                     inheritedConditions.Add(condition);
             }
 
