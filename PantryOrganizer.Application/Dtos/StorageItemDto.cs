@@ -9,9 +9,9 @@ public class StorageItemDto : IIdDto<Guid>
     public string? Note { get; set; }
     public int? Amount { get; set; }
     public decimal? Quantity { get; set; }
-    public decimal? RemainingPercentage { get; set; }
+    public double? RemainingPercentage { get; set; }
     public DateTimeOffset? StoredDate { get; set; }
-    public DateTimeOffset? ExpirationDate { get; set; }
+    public DateTime? ExpirationDate { get; set; }
     public string? Ean { get; set; }
 
     public Guid? PantryId { get; set; }
