@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PantryOrganizer.Application.Extensions;
+using PantryOrganizer.Application.Services;
 using PantryOrganizer.Data;
 
 namespace PantryOrganizer.Application;
@@ -18,5 +19,11 @@ public static class ServiceConfiguration
             .AddAutoMapper(typeof(ServiceConfiguration))
             .AddValidatorsFromAssemblyContaining(typeof(ServiceConfiguration))
             .AddSortersFromAssemblyContaining(typeof(ServiceConfiguration))
-            .AddFiltersFromAssemblyContaining(typeof(ServiceConfiguration));
+            .AddFiltersFromAssemblyContaining(typeof(ServiceConfiguration))
+            .AddDataServices();
+
+    private static IServiceCollection AddDataServices(this IServiceCollection services)
+        => services.AddScoped<IUnitService, UnitService>()
+            .AddScoped<IStorageItemService, StorageItemService>()
+            .AddScoped<IPantryService, PantryService>();
 }
