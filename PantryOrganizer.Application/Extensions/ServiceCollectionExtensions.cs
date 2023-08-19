@@ -36,7 +36,11 @@ public static class ServiceCollectionExtensions
         Assembly assembly,
         ServiceLifetime lifetime = ServiceLifetime.Scoped,
         bool includeInternalTypes = false)
-        => services.AddTypesFromAssembly(assembly, typeof(IFilter<,>), lifetime, includeInternalTypes);
+        => services.AddTypesFromAssembly(
+            assembly,
+            typeof(IFilter<,>),
+            lifetime,
+            includeInternalTypes);
 
     public static IServiceCollection AddSortersFromAssemblies(
         this IServiceCollection services,

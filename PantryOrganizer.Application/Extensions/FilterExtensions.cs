@@ -122,14 +122,14 @@ public static class DefaultFilterExtensions
         Expression<Func<TFilter, TProperty?>> selector,
         Func<Expression, Expression, Expression> filterBuilder)
     {
-        var predicate = BuildSelectorPredicate<TProperty>(filterBuilder);
+        var predicate = BuildPredicate<TProperty>(filterBuilder);
 
         filterRule.Using(selector);
         filterRule.Predicate(predicate);
         return filterRule;
     }
 
-    private static Expression<Func<T2?, T2?, bool>> BuildSelectorPredicate<T2>(
+    private static Expression<Func<T2?, T2?, bool>> BuildPredicate<T2>(
         Func<Expression, Expression, Expression> filterBuilder)
     {
         var dataParameter = Expression.Parameter(typeof(T2?));
