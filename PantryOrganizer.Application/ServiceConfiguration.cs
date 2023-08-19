@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PantryOrganizer.Application.Extensions;
 using PantryOrganizer.Data;
 
 namespace PantryOrganizer.Application;
@@ -12,5 +14,9 @@ public static class ServiceConfiguration
         IConfiguration configuration)
         => services
             .AddDbContext<PantryOrganizerContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")))
+            .AddAutoMapper(typeof(ServiceConfiguration))
+            .AddValidatorsFromAssemblyContaining(typeof(ServiceConfiguration))
+            .AddSortersFromAssemblyContaining(typeof(ServiceConfiguration))
+            .AddFiltersFromAssemblyContaining(typeof(ServiceConfiguration));
 }
