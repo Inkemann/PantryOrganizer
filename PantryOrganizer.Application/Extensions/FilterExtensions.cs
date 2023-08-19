@@ -27,7 +27,7 @@ public static class DefaultFilterExtensions
 
     public static IFilterRuleBuilder<TFilter, TProperty> IgnoreDefault<TFilter, TProperty>(
         this IFilterRuleBuilder<TFilter, TProperty> filterRule)
-        => filterRule.When(value => EqualityComparer<TProperty>.Default.Equals(value, default));
+        => filterRule.When(value => !EqualityComparer<TProperty>.Default.Equals(value, default));
 
     public static IFilterRuleBuilder<TFilter, string> IgnoreEmpty<TFilter>(
         this IFilterRuleBuilder<TFilter, string> filterRule)
