@@ -85,7 +85,8 @@ public abstract class AbstractFilter<TFilter, TData> :
 
             var filterValue = filterSelector.Compile()(filterInput);
 
-            if ((condition ?? GetConditionFromDefaults())(filterValue))
+            var conditionFunction = condition ?? GetConditionFromDefaults();
+            if (conditionFunction(filterValue))
             {
                 var preparedFilter = PrepareFilter();
                 var curriedFilter = preparedFilter.ApplyPartial(filterValue);
