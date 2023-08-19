@@ -7,11 +7,6 @@ public interface IFilter<TFilter, TData>
     public IQueryable<TData> Apply(IQueryable<TData> query, TFilter? filterInput);
 }
 
-public interface IFilterBuilder<TFilter, TData>
-{
-    public IFilterBuilder<TFilter, TData> AddConditionForType<T>(Func<T?, bool> condition);
-}
-
 public interface IFilterRule<TFilter, TData>
 {
     internal IQueryable<TData> Apply(IQueryable<TData> query, TFilter filterInput);

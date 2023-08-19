@@ -5,17 +5,12 @@ using System.Reflection;
 namespace PantryOrganizer.Application.Query;
 
 public abstract class AbstractFilter<TFilter, TData> :
-    IFilter<TFilter, TData>,
-    IFilterBuilder<TFilter, TData>
+    IFilter<TFilter, TData>
     where TFilter : class
     where TData : class
 {
     private readonly IList<IFilterRule<TFilter, TData>> rules
         = new List<IFilterRule<TFilter, TData>>();
-    private readonly IDictionary<Type, Expression<Func<object?, bool>>> defaultConditions
-        = new Dictionary<Type, Expression<Func<object?, bool>>>();
-
-    public IFilterBuilder<TFilter, TData> Defaults => this;
 
     protected IFilterRuleBuilder<TFilter, TProperty> FilterFor<TProperty>(
         Expression<Func<TData, TProperty?>> selector)
@@ -58,19 +53,13 @@ public abstract class AbstractFilter<TFilter, TData> :
         return query;
     }
 
-    public IFilterBuilder<TFilter, TData> AddConditionForType<T>(Func<T?, bool> condition)
-    {
-        defaultConditions[typeof(T)] = value => condition((T?)value);
-        return this;
-    }
-
     private abstract class FilterRule<TProperty> :
         IFilterRule<TFilter, TData>,
         IFilterRuleBuilder<TFilter, TProperty>
     {
         protected readonly AbstractFilter<TFilter, TData> parentFilter;
         protected Expression<Func<TFilter, TProperty?>>? filterSelector;
-        protected Expression<Func<object?, bool>>? condition = null;
+        protected Expression<Func<object?, bool>> condition = value => true;
         protected Expression<Func<TProperty?, TProperty?, bool>> filter
             = (filterProperty, dataProperty) => true;
 
@@ -85,8 +74,7 @@ public abstract class AbstractFilter<TFilter, TData> :
 
             var filterValue = filterSelector.Compile()(filterInput);
 
-            var conditionExpression = condition ?? GetConditionFromDefaults();
-            if (conditionExpression.Compile()(filterValue))
+            if (condition.Compile()(filterValue))
             {
                 var preparedFilter = PrepareFilter();
                 var curriedFilter = preparedFilter.ApplyPartial(filterValue);
@@ -127,25 +115,6 @@ public abstract class AbstractFilter<TFilter, TData> :
         }
 
         protected abstract Expression<Func<TProperty?, TData, bool>> PrepareFilter();
-
-        private Expression<Func<object?, bool>> GetConditionFromDefaults()
-        {
-            var propertyType = typeof(TProperty);
-            Expression<Func<object?, bool>>? directTypeCondition = null;
-            var inheritedConditions = new List<Expression<Func<object?, bool>>>();
-
-            foreach ((var type, var condition) in parentFilter.defaultConditions)
-            {
-                if (type == propertyType)
-                    directTypeCondition = condition;
-                else if (type.IsAssignableFrom(propertyType))
-                    inheritedConditions.Add(condition);
-            }
-
-            return directTypeCondition
-                ?? inheritedConditions.FirstOrDefault()
-                ?? (value => true);
-        }
     }
 
     private class SingleFilterRule<TProperty> :

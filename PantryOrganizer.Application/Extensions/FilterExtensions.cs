@@ -5,22 +5,6 @@ namespace PantryOrganizer.Application.Extensions;
 
 public static class DefaultFilterExtensions
 {
-    public static IFilterBuilder<TFilter, TData> IgnoreNull<TFilter, TData>(
-        this IFilterBuilder<TFilter, TData> filter)
-        => filter.AddConditionForType<object>(value => value != null);
-
-    public static IFilterBuilder<TFilter, TData> IgnoreDefault<TFilter, TData>(
-        this IFilterBuilder<TFilter, TData> filter)
-        => filter.AddConditionForType<object>(value => value != default);
-
-    public static IFilterBuilder<TFilter, string> IgnoreEmpty<TFilter>(
-        this IFilterBuilder<TFilter, string> filter)
-        => filter.AddConditionForType<string>(value => !string.IsNullOrEmpty(value));
-
-    public static IFilterBuilder<TFilter, string> IgnoreWhitespace<TFilter>(
-        this IFilterBuilder<TFilter, string> filter)
-        => filter.AddConditionForType<string>(value => !string.IsNullOrWhiteSpace(value));
-
     public static IFilterRuleBuilder<TFilter, TProperty> IgnoreNull<TFilter, TProperty>(
         this IFilterRuleBuilder<TFilter, TProperty> filterRule)
         => filterRule.When(value => value != null);
