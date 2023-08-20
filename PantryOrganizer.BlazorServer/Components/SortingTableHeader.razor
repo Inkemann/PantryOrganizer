@@ -1,0 +1,108 @@
+﻿@using System.Linq.Expressions;
+@using System.Reflection;
+
+<th class="@CssClass">
+    <div class="mb-1 d-flex flex-row align-items-center gap-1">
+        @switch (SortingParameter?.Direction)
+        {
+            case SortingDirection.Ascending:
+                <span class="oi oi-sort-ascending text-primary" role="button" @onclick="SortDescending"></span>
+                break;
+            case SortingDirection.Descending:
+                <span class="oi oi-sort-descending text-primary" role="button" @onclick="SortNone"></span>
+                break;
+            default:
+                <span class="oi oi-sort-ascending" role="button" @onclick="SortAscending"></span>
+                break;
+        }
+        @if (SortingParameter?.Priority > 0)
+        {
+            <span>@SortingParameter?.Priority</span>
+        }
+        <span class="ms-1">@(Text ?? GetFieldName())</span>
+    </div>
+    @ChildContent
+</th>
+
+@code {
+    [CascadingParameter]
+    public object? Sorting { get; set; }
+
+    [Parameter, EditorRequired]
+    public required SortingParameter SortingParameter { get; set; }
+
+    [Parameter]
+    public EventCallback<SortingParameter> SortingParameterChanged { get; set; }
+
+    [Parameter]
+    public Expression<Func<SortingParameter>>? SortingParameterExpression { get; set; }
+
+    [Parameter]
+    public string? Text { get; set; }
+
+    [Parameter]
+    public string? CssClass { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private void SortAscending()
+        => SetSortingDirection(SortingDirection.Ascending);
+
+    private void SortDescending()
+        => SetSortingDirection(SortingDirection.Descending);
+
+    private void SortNone()
+        => SetSortingDirection(null);
+
+    private void SetSortingDirection(SortingDirection? direction)
+    {
+        int priority = 0;
+        if (Sorting != null)
+        {
+            var fieldName = GetFieldName();
+
+            var sortingParameterProperties = GetSortingParameterProperties()
+                .Where(propertyInfo => propertyInfo.Name != fieldName
+                    && ((SortingParameter)propertyInfo.GetValue(Sorting)!).IsEnabled)
+                .OrderBy(propertyInfo => ((SortingParameter)propertyInfo.GetValue(Sorting)!).Priority);
+
+            var newPriority = 1;
+            foreach (var sortingParameterProperty in sortingParameterProperties)
+            {
+                var value = (SortingParameter)sortingParameterProperty.GetValue(Sorting)!;
+                sortingParameterProperty.SetValue(Sorting, value with { Priority = newPriority });
+                newPriority++;
+            }
+            priority = newPriority > 1 ? newPriority : 0;
+        }
+
+        SortingParameter = new SortingParameter(direction, direction != null ? priority : 0);
+        SortingParameterChanged.InvokeAsync(SortingParameter);
+    }
+
+    private string GetFieldName()
+    {
+        if (SortingParameterExpression == null)
+            throw new InvalidOperationException();
+
+        var accessorBody = SortingParameterExpression.Body;
+
+        if (!(accessorBody is MemberExpression memberExpression))
+            throw new InvalidOperationException();
+
+        return memberExpression.Member.Name;
+    }
+
+    private IEnumerable<PropertyInfo> GetSortingParameterProperties()
+    {
+        if (Sorting == null)
+            yield break;
+
+        foreach (var propertyInfo in Sorting.GetType().GetProperties())
+        {
+            if (propertyInfo.PropertyType == typeof(SortingParameter))
+                yield return propertyInfo;
+        }
+    }
+}

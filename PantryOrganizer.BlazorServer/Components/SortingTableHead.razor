@@ -1,0 +1,16 @@
+﻿<thead class="@CssClass">
+    <CascadingValue Value="Sorting">
+        @ChildContent
+    </CascadingValue>
+</thead>
+
+@code {
+    [Parameter, EditorRequired]
+    public required object Sorting { get; set; }
+
+    [Parameter]
+    public string? CssClass { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
