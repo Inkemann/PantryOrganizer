@@ -9,6 +9,7 @@ public class StorageItemMapper : Profile
     public StorageItemMapper()
     {
         CreateMap<StorageItem, StorageItemDto>();
-        CreateMap<StorageItemDto, StorageItem>();
+        CreateMap<StorageItemDto, StorageItem>()
+            .ForMember(storageItem => storageItem.Unit, options => options.Ignore());
     }
 }

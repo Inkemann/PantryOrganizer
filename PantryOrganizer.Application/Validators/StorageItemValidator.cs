@@ -15,7 +15,7 @@ public class StorageItemValidator : AbstractValidator<StorageItemDto>
         RuleFor(storageItem => storageItem.Quantity)
             .NotEmpty()
             .GreaterThanOrEqualTo(0);
-        RuleFor(storageItem => storageItem.Unit)
+        RuleFor(storageItem => storageItem.UnitId)
             .NotEmpty();
         RuleFor(storageItem => storageItem.RemainingPercentage)
             .InclusiveBetween(0, 1)

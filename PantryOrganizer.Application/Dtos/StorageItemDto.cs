@@ -17,6 +17,7 @@ public class StorageItemDto : IIdDto<Guid>
     public Guid? PantryId { get; set; }
     public string? PantryName { get; set; }
 
+    public Guid? UnitId { get; set; }
     public UnitDto? Unit { get; set; }
 }
 
