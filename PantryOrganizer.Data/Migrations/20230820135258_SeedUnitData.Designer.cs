@@ -12,8 +12,8 @@ using PantryOrganizer.Data;
 namespace PantryOrganizer.Data.Migrations
 {
     [DbContext(typeof(PantryOrganizerContext))]
-    [Migration("20230820085630_SeedUntData")]
-    partial class SeedUntData
+    [Migration("20230820135258_SeedUnitData")]
+    partial class SeedUnitData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -157,7 +157,7 @@ namespace PantryOrganizer.Data.Migrations
                             Id = new Guid("2fb42003-5924-48c1-9684-be445a0da347"),
                             Abbreviation = "dz.",
                             AbbreviationPlural = "dzs.",
-                            BaseConversionFactor = 0.083333333333333329,
+                            BaseConversionFactor = 12.0,
                             DimensionId = 1,
                             IsBase = false,
                             IsRecipeUnit = false,
@@ -193,19 +193,6 @@ namespace PantryOrganizer.Data.Migrations
                         },
                         new
                         {
-                            Id = new Guid("c44a6fe7-4548-4754-944b-88e1dbf5e77a"),
-                            Abbreviation = "ml",
-                            AbbreviationPlural = "ml",
-                            BaseConversionFactor = 0.001,
-                            DimensionId = 3,
-                            IsBase = false,
-                            IsRecipeUnit = false,
-                            IsStorageUnit = false,
-                            Name = "Milliliter",
-                            NamePlural = "Milliliters"
-                        },
-                        new
-                        {
                             Id = new Guid("4a7f38ca-6da4-4256-9d27-8c761fd39ce1"),
                             Abbreviation = "l",
                             AbbreviationPlural = "l",
@@ -216,6 +203,19 @@ namespace PantryOrganizer.Data.Migrations
                             IsStorageUnit = false,
                             Name = "Liter",
                             NamePlural = "Liters"
+                        },
+                        new
+                        {
+                            Id = new Guid("c44a6fe7-4548-4754-944b-88e1dbf5e77a"),
+                            Abbreviation = "ml",
+                            AbbreviationPlural = "ml",
+                            BaseConversionFactor = 0.001,
+                            DimensionId = 3,
+                            IsBase = false,
+                            IsRecipeUnit = false,
+                            IsStorageUnit = false,
+                            Name = "Milliliter",
+                            NamePlural = "Milliliters"
                         },
                         new
                         {

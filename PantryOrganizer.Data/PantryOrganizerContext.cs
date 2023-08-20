@@ -39,7 +39,7 @@ public class PantryOrganizerContext : DbContext
             {
                 Id = Guid.Parse("2FB42003-5924-48C1-9684-BE445A0DA347"),
                 IsBase = false,
-                BaseConversionFactor = 1d / 12d,
+                BaseConversionFactor = 12d,
                 Abbreviation = "dz.",
                 Name = "Dozen",
                 AbbreviationPlural = "dzs.",
@@ -70,17 +70,6 @@ public class PantryOrganizerContext : DbContext
             },
             new Unit
             {
-                Id = Guid.Parse("C44A6FE7-4548-4754-944B-88E1DBF5E77A"),
-                IsBase = false,
-                BaseConversionFactor = 1d / 1000d,
-                Abbreviation = "ml",
-                Name = "Milliliter",
-                AbbreviationPlural = "ml",
-                NamePlural = "Milliliters",
-                DimensionId = UnitDimensionEnum.Volume,
-            },
-            new Unit
-            {
                 Id = Guid.Parse("4A7F38CA-6DA4-4256-9D27-8C761FD39CE1"),
                 IsBase = true,
                 BaseConversionFactor = 1d,
@@ -88,6 +77,17 @@ public class PantryOrganizerContext : DbContext
                 Name = "Liter",
                 AbbreviationPlural = "l",
                 NamePlural = "Liters",
+                DimensionId = UnitDimensionEnum.Volume,
+            },
+            new Unit
+            {
+                Id = Guid.Parse("C44A6FE7-4548-4754-944B-88E1DBF5E77A"),
+                IsBase = false,
+                BaseConversionFactor = 1d / 1000d,
+                Abbreviation = "ml",
+                Name = "Milliliter",
+                AbbreviationPlural = "ml",
+                NamePlural = "Milliliters",
                 DimensionId = UnitDimensionEnum.Volume,
             },
             new Unit

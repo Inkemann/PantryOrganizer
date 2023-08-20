@@ -5,7 +5,7 @@
 namespace PantryOrganizer.Data.Migrations;
 
 /// <inheritdoc />
-public partial class SeedUntData : Migration
+public partial class SeedUnitData : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,7 +27,7 @@ public partial class SeedUntData : Migration
             {
                 { new Guid("0f915c81-ac17-418a-95dd-0db852cc1af7"), "g", "g", 1.0, 2, true, false, false, "Gram", "Grams" },
                 { new Guid("20a0bda9-cecf-4479-9f6f-d0ef75a9798f"), "tsp.", "tsps.", 0.0050000000000000001, 3, false, false, false, "Teaspoon", "Teaspoons" },
-                { new Guid("2fb42003-5924-48c1-9684-be445a0da347"), "dz.", "dzs.", 0.083333333333333329, 1, false, false, false, "Dozen", "Dozens" },
+                { new Guid("2fb42003-5924-48c1-9684-be445a0da347"), "dz.", "dzs.", 12.0, 1, false, false, false, "Dozen", "Dozens" },
                 { new Guid("441a63f4-0211-41fd-a4b5-f4d10ddfd7c7"), "kg", "kg", 1000.0, 2, false, false, false, "Kilogram", "Kilograms" },
                 { new Guid("4a7f38ca-6da4-4256-9d27-8c761fd39ce1"), "l", "l", 1.0, 3, true, false, false, "Liter", "Liters" },
                 { new Guid("584dfc68-3e8e-4923-9f9c-b9b9b2f78381"), "tbsp.", "tbsps.", 0.014999999999999999, 3, false, false, false, "Tablespoon", "Tablespoons" },
