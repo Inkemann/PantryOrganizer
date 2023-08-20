@@ -14,14 +14,13 @@
     </div>
     <div class="col-12">
         <table class="table table-striped">
-            <thead>
+            <SortingTableHead Sorting="Sorting">
                 <tr>
-                    <th class="align-top">
-                        Name
-                        <InputText class="form-control" @bind-Value="PantryFilter.Name" @bind-Value:after="Filter" />
-                    </th>
+                    <SortingTableHeader CssClass="align-top" @bind-SortingParameter="Sorting.Name" @bind-SortingParameter:after="UpdateList" Text="Name">
+                        <InputText class="form-control" @bind-Value="Filter.Name" @bind-Value:after="UpdateList" />
+                    </SortingTableHeader>
                 </tr>
-            </thead>
+            </SortingTableHead>
             <tbody>
                 @foreach (var pantry in Pantries)
                 {
@@ -41,18 +40,17 @@
 @code {
     public IEnumerable<PantryDto> Pantries { get; set; } = new List<PantryDto>();
 
-    public PantryFilterDto PantryFilter { get; set; } = new PantryFilterDto();
+    public PantryFilterDto Filter { get; set; } = new PantryFilterDto();
+
+    public PantrySortingDto Sorting { get; set; } = new PantrySortingDto();
 
     protected override void OnInitialized()
     {
-        Filter();
+        UpdateList();
     }
 
-    private void Filter()
+    private void UpdateList()
         => Pantries = PantryService.GetList(
-            filter: PantryFilter,
-            sorting: new PantrySortingDto
-                {
-                    Name = new SortingParameter()
-                });
+            filter: Filter,
+            sorting: Sorting);
 }
