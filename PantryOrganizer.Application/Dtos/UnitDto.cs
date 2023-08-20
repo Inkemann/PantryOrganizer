@@ -26,6 +26,6 @@ public class UnitFilterDto { }
 
 public class UnitSortingDto
 {
-    public SortingParameter? ConversionFactor { get; set; }
-    public SortingParameter? Dimension { get; set; }
+    public SortingParameter ConversionFactor { get; set; } = new SortingParameter();
+    public SortingParameter Dimension { get; set; } = new SortingParameter();
 }
