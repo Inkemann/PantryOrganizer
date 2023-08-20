@@ -1,0 +1,58 @@
+@page "/"
+@page "/pantries"
+@inject IPantryService PantryService
+@inject IJSRuntime JsRuntime
+
+<PageTitle>Pantries</PageTitle>
+
+<div class="row gy-2 gy-md-4">
+    <div class="col-12">
+        <h1 class="float-start">Pantries</h1>
+        <a class="btn btn-primary float-end" href="pantry">
+            <span class="oi oi-plus"></span>
+        </a>
+    </div>
+    <div class="col-12">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th class="align-top">
+                        Name
+                        <InputText class="form-control" @bind-Value="PantryFilter.Name" @bind-Value:after="Filter" />
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pantry in Pantries)
+                {
+                    <tr>
+                        <td>
+                            <a href="@($"pantry/{pantry.Id}")"><span>@pantry.Name</span></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-4 col-xxl-3">
+    </div>
+</div>
+
+@code {
+    public IEnumerable<PantryDto> Pantries { get; set; } = new List<PantryDto>();
+
+    public PantryFilterDto PantryFilter { get; set; } = new PantryFilterDto();
+
+    protected override void OnInitialized()
+    {
+        Filter();
+    }
+
+    private void Filter()
+        => Pantries = PantryService.GetList(
+            filter: PantryFilter,
+            sorting: new PantrySortingDto
+                {
+                    Name = new SortingParameter()
+                });
+}

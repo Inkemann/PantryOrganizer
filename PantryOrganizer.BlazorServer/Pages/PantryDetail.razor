@@ -1,0 +1,68 @@
+@page "/pantry/{Id:guid}"
+@page "/pantry"
+@inject IPantryService PantryService
+@inject NavigationManager Navigation
+
+<PageTitle>@Pantry.Name</PageTitle>
+
+<EditForm Model="@Pantry" OnValidSubmit="@Save">
+    <FluentValidationValidator DisableAssemblyScanning="true" />
+
+    <div class="row gy-2 gy-md-4">
+        <div class="col-12">
+            <label class="form-label">Name</label>
+            <InputText class="form-control" @bind-Value="Pantry.Name" />
+            <ValidationMessage For="() => Pantry.Name"></ValidationMessage>
+        </div>
+        <button class="btn btn-primary" type="submit">Save</button>
+        <button class="btn" type="button" @onclick="() => Delete()">Delete</button>
+        <button class="btn" type="button" @onclick="@(() => Navigation.NavigateTo("pantries"))">Close</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Guid? Id { get; set; }
+
+    private PantryDto Pantry { get; set; } = new PantryDto();
+
+    protected override void OnInitialized()
+    {
+        if (Id.HasValue)
+        {
+            var itemResult = PantryService.GetById(Id.Value);
+
+            if (itemResult.IsSuccess)
+                Pantry = itemResult.Result!;
+        }
+    }
+
+    private void Save()
+    {
+        if (Id.HasValue)
+        {
+            var updateResult = PantryService.Update(Pantry);
+
+            if (updateResult.IsSuccess)
+                Pantry = updateResult.Result!;
+        }
+        else
+        {
+            var addResult = PantryService.Add(Pantry);
+
+            if (addResult.IsSuccess)
+                Navigation.NavigateTo($"pantry/{addResult.Result!.Id}");
+            else
+                Navigation.NavigateTo("pantries");
+        }
+    }
+
+    private void Delete()
+    {
+        if (Id.HasValue)
+        {
+            PantryService.Delete(Pantry.Id);
+            Navigation.NavigateTo("pantries");
+        }
+    }
+}
