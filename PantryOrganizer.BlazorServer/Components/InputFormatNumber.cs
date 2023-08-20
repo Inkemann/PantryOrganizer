@@ -27,9 +27,11 @@ public class InputFormatNumber<TValue>
 
     [Parameter]
     public string? Format { get; set; }
+
     [Parameter]
     public string ParsingErrorMessage { get; set; }
         = "The {0} field must be a number.";
+
     [DisallowNull]
     public ElementReference? Element { get; protected set; }
 
