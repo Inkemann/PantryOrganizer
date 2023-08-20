@@ -17,10 +17,7 @@ public partial class AddPantryModels : Migration
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 Name = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: false)
             },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_Pantry", x => x.Id);
-            });
+            constraints: table => table.PrimaryKey("PK_Pantry", x => x.Id));
 
         migrationBuilder.CreateTable(
             name: "UnitDimension",
@@ -29,10 +26,7 @@ public partial class AddPantryModels : Migration
                 Id = table.Column<int>(type: "int", nullable: false),
                 Name = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false)
             },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_UnitDimension", x => x.Id);
-            });
+            constraints: table => table.PrimaryKey("PK_UnitDimension", x => x.Id));
 
         migrationBuilder.CreateTable(
             name: "Unit",
