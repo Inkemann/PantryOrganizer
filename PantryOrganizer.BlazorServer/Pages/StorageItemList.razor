@@ -45,7 +45,7 @@
                             </td>
                             <td>
                                 <a href="@($"storageitem/{storageItem.Id}")">
-                                    <span>@($"{storageItem.Quantity:G0)} {(storageItem.Quantity == 1 ? storageItem.Unit?.Abbreviation : storageItem.Unit?.AbbreviationPlural)}")</span>
+                                    <span>@($"{storageItem.Quantity:G0} {(storageItem.Quantity == 1 ? storageItem.Unit?.Abbreviation : storageItem.Unit?.AbbreviationPlural)}")</span>
                                     @if (storageItem.RemainingPercentage.HasValue)
                                     {
                                         <span> (@($"{storageItem.RemainingPercentage:P0}") remaining)</span>
