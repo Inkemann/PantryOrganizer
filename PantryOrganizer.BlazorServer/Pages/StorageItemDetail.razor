@@ -28,17 +28,19 @@
         </div>
         <div class="col-md-4 col-xxl-3">
             <label class="form-label">Unit</label>
-            <InputSelect class="form-control" @bind-Value="StorageItem.Unit">
-                @if (StorageItem.Unit == null)
+            <InputSelect class="form-control" @bind-Value:get="StorageItem.UnitId" @bind-Value:set="UnitChanged">
+                @if (!StorageItem.UnitId.HasValue)
                 {
                     <option value=""></option>
                 }
                 @foreach (var unit in Units)
                 {
-                    <option value="@unit">@(StorageItem.Quantity == 1 ? unit.Abbreviation : unit.AbbreviationPlural)</option>
+                    <option value="@unit.Id">
+                        @(StorageItem.Quantity == 1 ? unit.Abbreviation : unit.AbbreviationPlural)
+                    </option>
                 }
             </InputSelect>
-            <ValidationMessage For="() => StorageItem.Unit"></ValidationMessage>
+            <ValidationMessage For="() => StorageItem.UnitId"></ValidationMessage>
         </div>
         <div class="col-md-4 col-xxl-3">
             <label class="form-label">Pantry</label>
@@ -141,5 +143,31 @@
             StorageItemService.Delete(StorageItem.Id);
             Navigation.NavigateTo("storageitems");
         }
+    }
+
+    private void UnitChanged(Guid? newId)
+    {
+        try
+        {
+            if (StorageItem.Quantity.HasValue
+                && StorageItem.UnitId.HasValue
+                && newId.HasValue)
+            {
+                var conversionResult = UnitService.GetConversionRate(
+                    StorageItem.UnitId.Value,
+                    newId.Value);
+
+                if (conversionResult.ConversionRate.HasValue)
+                {
+                    var newQuantity = Math.Round(
+                        StorageItem.Quantity.Value * (decimal)conversionResult.ConversionRate,
+                        2);
+                    StorageItem.Quantity = newQuantity;
+                }
+            }
+        }
+        catch { }
+
+        StorageItem.UnitId = newId;
     }
 }
