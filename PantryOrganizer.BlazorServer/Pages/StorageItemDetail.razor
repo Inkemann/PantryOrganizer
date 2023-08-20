@@ -1,0 +1,145 @@
+@page "/storageitem/{Id:guid}"
+@page "/storageitem"
+@inject IStorageItemService StorageItemService
+@inject IUnitService UnitService
+@inject IPantryService PantryService
+@inject NavigationManager Navigation
+
+<PageTitle>@StorageItem.Name</PageTitle>
+
+<EditForm Model="@StorageItem" OnValidSubmit="@Save">
+    <FluentValidationValidator DisableAssemblyScanning="true" />
+
+    <div class="row gy-2 gy-md-4">
+        <div class="col-md-4 col-xxl-3">
+            <label class="form-label">Name</label>
+            <InputText class="form-control" @bind-Value="StorageItem.Name" />
+            <ValidationMessage For="() => StorageItem.Name"></ValidationMessage>
+        </div>
+        <div class="col-md-4 col-xxl-3">
+            <label class="form-label">Quantity</label>
+            <InputNumber class="form-control" @bind-Value="StorageItem.Quantity" />
+            <ValidationMessage For="() => StorageItem.Quantity"></ValidationMessage>
+        </div>
+        <div class="col-md-4 col-xxl-3">
+            <label class="form-label">Note</label>
+            <InputTextArea class="form-control" @bind-Value="StorageItem.Note" />
+            <ValidationMessage For="() => StorageItem.Note"></ValidationMessage>
+        </div>
+        <div class="col-md-4 col-xxl-3">
+            <label class="form-label">Unit</label>
+            <InputSelect class="form-control" @bind-Value="StorageItem.Unit">
+                @if (StorageItem.Unit == null)
+                {
+                    <option value=""></option>
+                }
+                @foreach (var unit in Units)
+                {
+                    <option value="@unit">@(StorageItem.Quantity == 1 ? unit.Abbreviation : unit.AbbreviationPlural)</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="() => StorageItem.Unit"></ValidationMessage>
+        </div>
+        <div class="col-md-4 col-xxl-3">
+            <label class="form-label">Pantry</label>
+            <InputSelect class="form-control" @bind-Value="StorageItem.PantryId">
+                @if (StorageItem.PantryId == null)
+                {
+                    <option value=""></option>
+                }
+                @foreach (var pantry in Pantries)
+                {
+                    <option value="@pantry.Id">@pantry.Name</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="() => StorageItem.PantryId"></ValidationMessage>
+        </div>
+        <div class="col-md-4 col-xxl-3">
+            <label class="form-label">Expiration date</label>
+            <InputDate class="form-control" @bind-Value="StorageItem.ExpirationDate" />
+            <ValidationMessage For="() => StorageItem.ExpirationDate"></ValidationMessage>
+        </div>
+        <button class="btn btn-primary" type="submit">Save</button>
+        <button class="btn" type="button" @onclick="() => Delete()">Delete</button>
+        <button class="btn" type="button" @onclick="@(() => Navigation.NavigateTo("storageitems"))">Close</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Guid? Id { get; set; }
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public Guid? PantryId { get; set; }
+    public IEnumerable<PantryDto> Pantries { get; set; } = new List<PantryDto>();
+    public IEnumerable<UnitDto> Units = new List<UnitDto>();
+
+    private StorageItemDto StorageItem { get; set; } = new StorageItemDto();
+
+    protected override void OnInitialized()
+    {
+        Units = UnitService.GetList(
+            sorting: new UnitSortingDto
+                {
+                    Dimension = new SortingParameter
+                    {
+                        Direction = SortingDirection.Ascending,
+                        Priority = 0,
+                    },
+                    ConversionFactor = new SortingParameter
+                    {
+                        Direction = SortingDirection.Ascending,
+                        Priority = 1,
+                    },
+                });
+        Pantries = PantryService.GetList(
+            sorting: new PantrySortingDto
+                {
+                    Name = new SortingParameter()
+                });
+
+        if (Id.HasValue)
+        {
+            var itemResult = StorageItemService.GetById(Id.Value);
+
+            if (itemResult.IsSuccess)
+                StorageItem = itemResult.Result!;
+            else
+                Navigation.NavigateTo("storageitems");
+        }
+        else
+        {
+            if (PantryId.HasValue)
+                StorageItem.PantryId = PantryId;
+        }
+    }
+
+    private void Save()
+    {
+        if (Id.HasValue)
+        {
+            var updateResult = StorageItemService.Update(StorageItem);
+
+            if (updateResult.IsSuccess)
+                StorageItem = updateResult.Result!;
+        }
+        else
+        {
+            var addResult = StorageItemService.Add(StorageItem);
+
+            if (addResult.IsSuccess)
+                Navigation.NavigateTo($"storageitem/{addResult.Result!.Id}");
+            else
+                Navigation.NavigateTo("storageitems");
+        }
+    }
+
+    private void Delete()
+    {
+        if (Id.HasValue)
+        {
+            StorageItemService.Delete(StorageItem.Id);
+            Navigation.NavigateTo("storageitems");
+        }
+    }
+}

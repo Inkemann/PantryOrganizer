@@ -1,0 +1,94 @@
+@page "/storageitems"
+@inject IStorageItemService StorageItemService
+@inject IPantryService PantryService
+@inject IJSRuntime JsRuntime
+
+<PageTitle>Storage items</PageTitle>
+
+<div class="row gy-2 gy-md-4">
+    <div class="col-12">
+        <h1>Storage items</h1>
+    </div>
+    <div class="col-12">
+        <table class="table table-striped">
+            <colgroup>
+                <col style="width: 60%" />
+                <col style="width: 40%" />
+            </colgroup>
+            <thead>
+                <tr>
+                    <th class="align-top">
+                        Name
+                        <InputText class="form-control" @bind-Value="StorageItemFilter.Name" @bind-Value:after="Filter" />
+                    </th>
+                    <th class="align-top">
+                        Amount
+                    </th>
+                </tr>
+            </thead>
+            @foreach (var pantry in Pantries)
+            {
+                <tbody>
+                    <tr>
+                        <td colspan="2">
+                            <span>@pantry.Name</span>
+                            <a class="btn btn-sm btn-primary float-end" href="@($"storageitem?PantryId={pantry.Id}")">
+                                <span class="oi oi-plus"></span>
+                            </a>
+                        </td>
+                    </tr>
+                    @foreach (var storageItem in StorageItems.Where(item => item.PantryId == pantry.Id))
+                    {
+                        <tr>
+                            <td>
+                                <a href="@($"storageitem/{storageItem.Id}")"><span>@storageItem.Name</span></a>
+                            </td>
+                            <td>
+                                <a href="@($"storageitem/{storageItem.Id}")">
+                                    <span>@($"{storageItem.Quantity:G0)} {(storageItem.Quantity == 1 ? storageItem.Unit?.Abbreviation : storageItem.Unit?.AbbreviationPlural)}")</span>
+                                    @if (storageItem.RemainingPercentage.HasValue)
+                                    {
+                                        <span> (@($"{storageItem.RemainingPercentage:P0}") remaining)</span>
+                                    }
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+        </table>
+    </div>
+    <div class="col-md-4 col-xxl-3">
+    </div>
+</div>
+
+@code {
+    public IEnumerable<StorageItemDto> StorageItems { get; set; } = new List<StorageItemDto>();
+    public IEnumerable<PantryDto> Pantries { get; set; } = new List<PantryDto>();
+
+    public StorageItemFilterDto StorageItemFilter { get; set; } = new StorageItemFilterDto();
+
+    protected override void OnInitialized()
+    {
+        Pantries = PantryService.GetList(
+            sorting: new PantrySortingDto
+                {
+                    Name = new SortingParameter()
+                });
+
+        Filter();
+    }
+
+    private void Filter()
+        => StorageItems = StorageItemService.GetList(
+            filter: StorageItemFilter,
+            sorting: new StorageItemSortingDto
+                {
+                    Name = new SortingParameter()
+                });
+
+    private void BarcodeScanned(string result)
+    {
+        JsRuntime.InvokeVoidAsync("alert", result);
+    }
+}
