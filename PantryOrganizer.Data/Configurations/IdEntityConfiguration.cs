@@ -4,8 +4,9 @@ using PantryOrganizer.Data.Models;
 
 namespace PantryOrganizer.Data.Configurations;
 
-internal class GuidEntityConfiguration<TData> : IEntityTypeConfiguration<TData>
-    where TData : class, IIdEntity<Guid>
+internal class IdEntityConfiguration<TData, TId> : IEntityTypeConfiguration<TData>
+    where TData : class, IIdEntity<TId>
+    where TId : struct, IEquatable<TId>
 {
     public virtual void Configure(EntityTypeBuilder<TData> builder)
     {

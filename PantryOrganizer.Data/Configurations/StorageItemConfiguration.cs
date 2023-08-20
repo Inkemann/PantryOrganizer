@@ -4,7 +4,7 @@ using PantryOrganizer.Data.Models;
 
 namespace PantryOrganizer.Data.Configurations;
 
-internal class StorageItemConfiguration : GuidEntityConfiguration<StorageItem>
+internal class StorageItemConfiguration : IdEntityConfiguration<StorageItem, Guid>
 {
     public override void Configure(EntityTypeBuilder<StorageItem> builder)
     {
