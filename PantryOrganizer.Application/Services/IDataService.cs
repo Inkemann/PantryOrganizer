@@ -14,8 +14,8 @@ public interface IListService<TDto, TSorting, TFilter>
 {
     public IEnumerable<TDto> GetList(
         TFilter? filter = default,
-        TSorting? sortingData = default,
-        IPagination? paginationData = default);
+        TSorting? sorting = default,
+        IPagination? pagination = default);
 }
 
 public interface IEntityService<TDto, TId>
