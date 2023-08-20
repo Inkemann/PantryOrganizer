@@ -116,7 +116,15 @@ public abstract class IdDtoService<TData, TDto, TId, TSorting, TFilter> :
                 return new EntityResult<TDto>(false, true);
 
             entity = eventArgs.Entity;
-            context.Set<TData>().Update(eventArgs.Entity);
+
+            var entry = context.ChangeTracker.Entries<TData>()
+                .SingleOrDefault(x => x.Entity.Id.Equals(entity.Id));
+
+            if (entry != null)
+                entry.CurrentValues.SetValues(entity);
+            else
+                context.Set<TData>().Update(entity);
+
             bool success = context.SaveChanges() > 0;
 
             var result = mapper.Map<TDto>(entity);
