@@ -47,9 +47,9 @@ public abstract class IdDtoService<TData, TDto, TId, TSorting, TFilter> :
         => mapper.ProjectTo<TDto>(
                 context.Set<TData>()
                     .Filter(filter, filterData)
-                    .Sort(sorting, sortingData))
-            .Paginate(paginationData)
-            .AsNoTracking()
+                    .Sort(sorting, sortingData)
+                    .Paginate(paginationData))
+            .AsNoTrackingWithIdentityResolution()
             .AsEnumerable();
 
     public virtual EntityResult<TDto> GetById(TId id)
