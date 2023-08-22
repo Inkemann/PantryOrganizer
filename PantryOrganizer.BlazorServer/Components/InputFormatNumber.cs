@@ -41,7 +41,7 @@ public class InputFormatNumber<TValue>
         builder.AddAttribute(1, "step", _stepAttributeValue);
         builder.AddMultipleAttributes(2, AdditionalAttributes);
         builder.AddAttribute(3, "type", "number");
-        if (CssClass != null)
+        if (CssClass != default)
             builder.AddAttribute(4, "class", CssClass);
         builder.AddAttribute(5, "value", BindConverter.FormatValue(CurrentValueAsString));
         builder.AddAttribute(
@@ -62,7 +62,7 @@ public class InputFormatNumber<TValue>
     {
         if (BindConverter.TryConvertTo(value, CultureInfo.InvariantCulture, out result))
         {
-            validationErrorMessage = null;
+            validationErrorMessage = default;
             return true;
         }
         else

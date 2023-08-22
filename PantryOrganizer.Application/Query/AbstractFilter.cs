@@ -44,7 +44,7 @@ public abstract class AbstractFilter<TFilter, TData> :
 
     public IQueryable<TData> Apply(IQueryable<TData> query, TFilter? filterInput)
     {
-        if (filterInput == null)
+        if (filterInput == default)
             return query;
 
         foreach (var rule in rules)
@@ -69,7 +69,7 @@ public abstract class AbstractFilter<TFilter, TData> :
 
         public IQueryable<TData> Apply(IQueryable<TData> query, TFilter filterInput)
         {
-            if (filterSelector == null)
+            if (filterSelector == default)
                 throw new InvalidOperationException();
 
             var filterValue = filterSelector.Compile()(filterInput);

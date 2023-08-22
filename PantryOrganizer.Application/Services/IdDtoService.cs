@@ -120,7 +120,7 @@ public abstract class IdDtoService<TData, TDto, TId, TSorting, TFilter> :
             var entry = context.ChangeTracker.Entries<TData>()
                 .SingleOrDefault(x => x.Entity.Id.Equals(entity.Id));
 
-            if (entry != null)
+            if (entry != default)
                 entry.CurrentValues.SetValues(entity);
             else
                 context.Set<TData>().Update(entity);

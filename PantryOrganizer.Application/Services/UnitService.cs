@@ -25,7 +25,7 @@ public class UnitService :
         var from = context.Set<Unit>().SingleOrDefault(item => item.Id == fromId);
         var to = context.Set<Unit>().SingleOrDefault(item => item.Id == toId);
 
-        if (from == null || to == null
+        if (from == default || to == default
             || !from.DimensionId.HasValue || from.DimensionId != to.DimensionId)
         {
             return new IUnitService.ConversionResult();
@@ -58,7 +58,7 @@ public class UnitService :
     {
         var unit = context.Set<Unit>().SingleOrDefault(item => item.Id == unitId);
 
-        if (unit == null || !unit.DimensionId.HasValue)
+        if (unit == default || !unit.DimensionId.HasValue)
             return new IUnitService.ConversionResult();
 
         var baseUnit = unit.IsBase

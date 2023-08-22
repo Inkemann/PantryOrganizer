@@ -12,7 +12,7 @@ public class StringNullableEnumConverter<TEnum> : JsonConverter<TEnum>
 
     public StringNullableEnumConverter(JsonSerializerOptions? options)
     {
-        if (options != null)
+        if (options != default)
             converter = (JsonConverter<TEnum>)options.GetConverter(typeof(TEnum));
 
         underlyingType = Nullable.GetUnderlyingType(typeof(TEnum));
@@ -26,10 +26,10 @@ public class StringNullableEnumConverter<TEnum> : JsonConverter<TEnum>
         Type typeToConvert,
         JsonSerializerOptions options)
     {
-        if (underlyingType == null)
+        if (underlyingType == default)
             return default;
 
-        if (converter != null)
+        if (converter != default)
             return converter.Read(ref reader, underlyingType, options);
 
         string? value = reader.GetString();

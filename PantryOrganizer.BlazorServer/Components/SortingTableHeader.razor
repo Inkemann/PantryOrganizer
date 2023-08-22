@@ -53,12 +53,12 @@
         => SetSortingDirection(SortingDirection.Descending);
 
     private void SortNone()
-        => SetSortingDirection(null);
+        => SetSortingDirection(default);
 
     private void SetSortingDirection(SortingDirection? direction)
     {
         int priority = 0;
-        if (Sorting != null)
+        if (Sorting != default)
         {
             var fieldName = GetFieldName();
 
@@ -77,13 +77,13 @@
             priority = newPriority > 1 ? newPriority : 0;
         }
 
-        SortingParameter = new SortingParameter(direction, direction != null ? priority : 0);
+        SortingParameter = new SortingParameter(direction, direction != default ? priority : 0);
         SortingParameterChanged.InvokeAsync(SortingParameter);
     }
 
     private string GetFieldName()
     {
-        if (SortingParameterExpression == null)
+        if (SortingParameterExpression == default)
             throw new InvalidOperationException();
 
         var accessorBody = SortingParameterExpression.Body;
@@ -96,7 +96,7 @@
 
     private IEnumerable<PropertyInfo> GetSortingParameterProperties()
     {
-        if (Sorting == null)
+        if (Sorting == default)
             yield break;
 
         foreach (var propertyInfo in Sorting.GetType().GetProperties())

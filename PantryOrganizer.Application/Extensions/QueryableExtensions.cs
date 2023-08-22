@@ -19,7 +19,7 @@ public static class QueryableExtensions
     public static IQueryable<TData> Paginate<TData>(
         this IQueryable<TData> query,
         IPagination? pagination)
-        => pagination != null ?
+        => pagination != default ?
             query.Skip((pagination.Page - 1) * pagination.ItemsPerPage)
                 .Take(pagination.ItemsPerPage) :
             query;

@@ -43,7 +43,7 @@ public class AssemblyScanner : IEnumerable<AssemblyScanner.AssemblyScanResult>
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == (Type?)typeToScan)
                 .FirstOrDefault();
 
-            if (matchingInterface != null)
+            if (matchingInterface != default)
                 yield return new AssemblyScanResult(matchingInterface, type);
         }
     }

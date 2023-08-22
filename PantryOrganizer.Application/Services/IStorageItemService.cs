@@ -4,4 +4,6 @@ namespace PantryOrganizer.Application.Services;
 
 public interface IStorageItemService :
     IDataService<StorageItemDto, Guid, StorageItemSortingDto, StorageItemFilterDto>
-{ }
+{
+    public IEnumerable<StorageItemDto> GetListGrouped();
+}

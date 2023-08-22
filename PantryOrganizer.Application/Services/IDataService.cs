@@ -34,7 +34,7 @@ public interface IEntityService<TDto, TId>
 public record ActionResult(bool IsSuccess, bool IsCancelled, Exception? Exception)
 {
     public ActionResult(bool isSuccess, bool isCancelled)
-        : this(isSuccess, isCancelled, null)
+        : this(isSuccess, isCancelled, default)
     { }
 
     public ActionResult(Exception exception)
@@ -51,18 +51,18 @@ public record EntityResult<T>(
     where T : class
 {
     public EntityResult(T? entity)
-        : this(entity, entity != null, false, null)
+        : this(entity, entity != default, false, default)
     { }
 
     public EntityResult(T? entity, bool isSuccess, bool isCancelled)
-        : this(entity, isSuccess, isCancelled, null)
+        : this(entity, isSuccess, isCancelled, default)
     { }
 
     public EntityResult(bool isSuccess, bool isCancelled)
-        : this(null, isSuccess, isCancelled, null)
+        : this(default, isSuccess, isCancelled, default)
     { }
 
     public EntityResult(Exception exception)
-        : this(null, false, false, exception)
+        : this(default, false, false, exception)
     { }
 }

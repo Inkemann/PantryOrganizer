@@ -11,6 +11,6 @@ public interface IUnitService :
 
     public record ConversionResult(UnitDto? Base, double? ConversionRate)
     {
-        public ConversionResult() : this(null, null) { }
+        public ConversionResult() : this(default, default) { }
     }
 }

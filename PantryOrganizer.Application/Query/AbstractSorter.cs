@@ -20,7 +20,7 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
 
     public IOrderedQueryable<TData> Apply(IQueryable<TData> query, TSorting? sortingInput)
     {
-        if (sortingInput != null)
+        if (sortingInput != default)
         {
             var sortings = GetSortings(sortingInput)
                 .OrderBy(x => x.Parameter.Priority).ToList();
@@ -31,7 +31,7 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
 
         var defaultSortings = rules.SelectWhere(
             rule => rule.GetDefault(),
-            (_, parameter) => parameter != null && parameter.IsEnabled,
+            (_, parameter) => parameter != default && parameter.IsEnabled,
             (rule, parameter) => (rule, parameter!));
 
         return defaultSortings.Any()
@@ -47,7 +47,7 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
         {
             var parameter = rule.GetParameter(sortingInput);
 
-            if (parameter != null && parameter.IsEnabled)
+            if (parameter != default && parameter.IsEnabled)
                 yield return (rule, parameter);
         }
     }
@@ -71,7 +71,7 @@ public abstract class AbstractSorter<TSorting, TData> : ISorter<TSorting, TData>
     {
         private readonly Expression<Func<TData, TProperty>> dataSelector;
         private Expression<Func<TSorting, SortingParameter?>> sortingSelector
-            = x => new(null, default);
+            = x => new(default, default);
         private SortingParameter? defaultParameter;
 
         public SorterRule(Expression<Func<TData, TProperty>> selector)

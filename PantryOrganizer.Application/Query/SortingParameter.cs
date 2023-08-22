@@ -2,7 +2,7 @@
 
 public record SortingParameter(SortingDirection? Direction, int Priority)
 {
-    public SortingParameter() : this(null, 0) { }
+    public SortingParameter() : this(default, 0) { }
 
     public SortingParameter(SortingDirection direction) : this(direction, 0) { }
 
