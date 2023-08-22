@@ -18,7 +18,7 @@ public abstract class IdDtoService<TData, TDto, TId, TSorting, TFilter> :
     protected readonly PantryOrganizerContext context;
     protected readonly IMapper mapper;
     protected readonly IValidator<TDto> validator;
-    protected readonly ISorter<TSorting, TData> sorting;
+    protected readonly ISorter<TSorting, TData> sorter;
     protected readonly IFilter<TFilter, TData> filter;
 
     public delegate void EntityChangeHandler(object sender, EntityChangeEventArgs args);
@@ -30,24 +30,24 @@ public abstract class IdDtoService<TData, TDto, TId, TSorting, TFilter> :
         PantryOrganizerContext context,
         IMapper mapper,
         IValidator<TDto> validator,
-        ISorter<TSorting, TData> sorting,
+        ISorter<TSorting, TData> sorter,
         IFilter<TFilter, TData> filter)
     {
         this.context = context;
         this.mapper = mapper;
         this.validator = validator;
-        this.sorting = sorting;
+        this.sorter = sorter;
         this.filter = filter;
     }
 
-    public IEnumerable<TDto> GetList(
-        TFilter? filterData = default,
-        TSorting? sortingData = default,
+    public virtual IEnumerable<TDto> GetList(
+        TFilter? filter = default,
+        TSorting? sorting = default,
         IPagination? paginationData = default)
         => mapper.ProjectTo<TDto>(
                 context.Set<TData>()
-                    .Filter(filter, filterData)
-                    .Sort(sorting, sortingData)
+                    .Filter(this.filter, filter)
+                    .Sort(sorter, sorting)
                     .Paginate(paginationData))
             .AsNoTrackingWithIdentityResolution()
             .AsEnumerable();

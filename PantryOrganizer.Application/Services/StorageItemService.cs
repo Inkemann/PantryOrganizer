@@ -15,9 +15,9 @@ public class StorageItemService :
         PantryOrganizerContext context,
         IMapper mapper,
         IValidator<StorageItemDto> validator,
-        ISorter<StorageItemSortingDto, StorageItem> sorting,
+        ISorter<StorageItemSortingDto, StorageItem> sorter,
         IFilter<StorageItemFilterDto, StorageItem> filter)
-        : base(context, mapper, validator, sorting, filter)
+        : base(context, mapper, validator, sorter, filter)
         => OnAddItem += ItemAdded;
 
     private void ItemAdded(object sender, EntityChangeEventArgs args)

@@ -15,8 +15,8 @@ public class PantryService :
         PantryOrganizerContext context,
         IMapper mapper,
         IValidator<PantryDto> validator,
-        ISorter<PantrySortingDto, Pantry> sorting,
+        ISorter<PantrySortingDto, Pantry> sorter,
         IFilter<PantryFilterDto, Pantry> filter)
-        : base(context, mapper, validator, sorting, filter)
+        : base(context, mapper, validator, sorter, filter)
     { }
 }
