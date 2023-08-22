@@ -15,9 +15,9 @@ public class UnitService :
         PantryOrganizerContext context,
         IMapper mapper,
         IValidator<UnitDto> validator,
-        ISorter<UnitSortingDto, Unit> sorter,
+        ISorter<UnitSortingDto, Unit> sorting,
         IFilter<UnitFilterDto, Unit> filter)
-        : base(context, mapper, validator, sorter, filter)
+        : base(context, mapper, validator, sorting, filter)
     { }
 
     public IUnitService.ConversionResult GetConversionRate(Guid fromId, Guid toId)
@@ -25,8 +25,7 @@ public class UnitService :
         var from = context.Set<Unit>().SingleOrDefault(item => item.Id == fromId);
         var to = context.Set<Unit>().SingleOrDefault(item => item.Id == toId);
 
-        if (from == default || to == default
-            || !from.DimensionId.HasValue || from.DimensionId != to.DimensionId)
+        if (from == default || to == default || from.DimensionId != to.DimensionId)
         {
             return new IUnitService.ConversionResult();
         }
@@ -58,7 +57,7 @@ public class UnitService :
     {
         var unit = context.Set<Unit>().SingleOrDefault(item => item.Id == unitId);
 
-        if (unit == default || !unit.DimensionId.HasValue)
+        if (unit == default)
             return new IUnitService.ConversionResult();
 
         var baseUnit = unit.IsBase

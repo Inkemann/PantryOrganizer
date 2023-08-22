@@ -12,7 +12,16 @@ internal class UnitConfiguration : IdEntityConfiguration<Unit, Guid>
 
         builder.HasKey(model => model.Id);
 
+        builder.Property(model => model.Abbreviation)
+            .HasMaxLength(StringLength.Short);
+
         builder.Property(model => model.Name)
+            .HasMaxLength(StringLength.Short);
+
+        builder.Property(model => model.AbbreviationPlural)
+            .HasMaxLength(StringLength.Short);
+
+        builder.Property(model => model.NamePlural)
             .HasMaxLength(StringLength.Short);
 
         builder.HasIndex(model => model.DimensionId)

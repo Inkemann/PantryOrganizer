@@ -9,10 +9,8 @@ public class Unit : IIdEntity<Guid>
     public required string Name { get; set; }
     public required string AbbreviationPlural { get; set; }
     public required string NamePlural { get; set; }
-    public bool IsStorageUnit { get; set; }
-    public bool IsRecipeUnit { get; set; }
 
-    public UnitDimensionEnum? DimensionId { get; set; }
+    public UnitDimensionEnum DimensionId { get; set; }
     public virtual UnitDimension? Dimension { get; set; }
 }
 
