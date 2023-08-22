@@ -15,9 +15,9 @@ public class UnitService :
         PantryOrganizerContext context,
         IMapper mapper,
         IValidator<UnitDto> validator,
-        ISorter<UnitSortingDto, Unit> sorting,
+        ISorter<UnitSortingDto, Unit> sorter,
         IFilter<UnitFilterDto, Unit> filter)
-        : base(context, mapper, validator, sorting, filter)
+        : base(context, mapper, validator, sorter, filter)
     { }
 
     public IUnitService.ConversionResult GetConversionRate(Guid fromId, Guid toId)
