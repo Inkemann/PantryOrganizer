@@ -4,7 +4,7 @@ public class Unit : IIdEntity<Guid>
 {
     public Guid Id { get; set; }
     public bool IsBase { get; set; }
-    public double? BaseConversionFactor { get; set; }
+    public double BaseConversionFactor { get; set; }
     public required string Abbreviation { get; set; }
     public required string Name { get; set; }
     public required string AbbreviationPlural { get; set; }
