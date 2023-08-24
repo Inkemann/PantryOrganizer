@@ -22,8 +22,7 @@ public class UnitValidator : AbstractValidator<UnitDto>
         RuleFor(unit => unit.NamePlural)
             .NotEmpty()
             .MaximumLength(StringLength.Medium);
-        RuleFor(unit => unit.Dimension)
-            .IsInEnum()
-            .When(unit => unit.Dimension.HasValue);
+        RuleFor(unit => unit.DimensionId)
+            .IsInEnum();
     }
 }

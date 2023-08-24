@@ -18,6 +18,7 @@ public class StorageItemDto : IIdDto<Guid>
     public string? PantryName { get; set; }
 
     public Guid? UnitId { get; set; }
+    public UnitDimensionEnumDto UnitDimensionId { get; set; }
     public UnitDto? Unit { get; set; }
 }
 
