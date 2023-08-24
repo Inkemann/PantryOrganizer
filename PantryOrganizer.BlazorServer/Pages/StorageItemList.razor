@@ -1,7 +1,6 @@
 @page "/storageitems"
 @inject IStorageItemService StorageItemService
 @inject IPantryService PantryService
-@inject IJSRuntime JsRuntime
 
 <PageTitle>Storage items</PageTitle>
 
@@ -20,7 +19,7 @@
                     <SortingTableHeader CssClass="align-top" @bind-SortingParameter="Sorting.Name" @bind-SortingParameter:after="UpdateList">
                         <InputText class="form-control" @bind-Value="Filter.Name" @bind-Value:after="UpdateList" />
                     </SortingTableHeader>
-                    <th>
+                    <th class="align-top">
                         Quantity
                     </th>
                 </tr>
@@ -36,24 +35,40 @@
                             </a>
                         </td>
                     </tr>
-                    @foreach (var storageItem in StorageItems.Where(item => item.PantryId == pantry.Id))
+                    @foreach (var storageItemGroup in StorageItemGroups.Where(item => item.PantryId == pantry.Id))
                     {
-                        <tr>
+                        <tr @onclick="() => storageItemGroup.IsExpanded = !storageItemGroup.IsExpanded">
                             <td>
-                                <a href="@($"storageitem/{storageItem.Id}")"><span>@storageItem.Name</span></a>
+                                <a href="@($"storageitem/{GetOrInitItems(storageItemGroup).First().Id}?WithGroup={storageItemGroup.ItemCount > 1}")">
+                                    <span>
+                                        @storageItemGroup.Name
+                                    </span>
+                                </a>
                             </td>
                             <td>
-                                <a href="@($"storageitem/{storageItem.Id}")">
+                                <a href="@($"storageitem/{GetOrInitItems(storageItemGroup).First().Id}?WithGroup={storageItemGroup.ItemCount > 1}")">
                                     <span>
-                                        @($"{storageItem.Quantity:G0} {(storageItem.Quantity == 1 ? storageItem.Unit?.Abbreviation : storageItem.Unit?.AbbreviationPlural)}")
+                                        @($"{storageItemGroup.Quantity:G0} {(storageItemGroup.Quantity == 1 ? storageItemGroup.Unit?.Abbreviation : storageItemGroup.Unit?.AbbreviationPlural)}")
                                     </span>
-                                    @if (storageItem.RemainingPercentage.HasValue)
-                                    {
-                                        <span> (@($"{storageItem.RemainingPercentage:P0}") remaining)</span>
-                                    }
                                 </a>
                             </td>
                         </tr>
+                        @if (storageItemGroup.IsExpanded && storageItemGroup.ItemCount > 1)
+                        {
+                            @foreach (var storageItem in GetOrInitItems(storageItemGroup))
+                            {
+                                <tr>
+                                    <td><a href="@($"storageitem/{storageItem.Id}?WithGroup=true")"></a></td>
+                                    <td>
+                                        <a href="@($"storageitem/{storageItem.Id}?WithGroup=true")">
+                                            <span>
+                                                @($"{storageItem.Quantity:G0} {(storageItem.Quantity == 1 ? storageItem.Unit?.Abbreviation : storageItem.Unit?.AbbreviationPlural)}")
+                                            </span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
                     }
                 </tbody>
             }
@@ -64,22 +79,23 @@
 </div>
 
 @code {
-    public IEnumerable<StorageItemDto> StorageItems { get; set; } = new List<StorageItemDto>();
+    public IEnumerable<StorageItemGroupDto> StorageItemGroups { get; set; }
+        = new List<StorageItemGroupDto>();
 
     public IEnumerable<PantryDto> Pantries { get; set; } = new List<PantryDto>();
 
-    public StorageItemFilterDto Filter { get; set; } = new StorageItemFilterDto();
+    public StorageItemGroupFilterDto Filter { get; set; } = new StorageItemGroupFilterDto();
 
-    public StorageItemSortingDto Sorting { get; set; } = new StorageItemSortingDto();
+    public StorageItemGroupSortingDto Sorting { get; set; } = new StorageItemGroupSortingDto();
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
         UpdateList();
     }
 
     private void UpdateList()
     {
-        StorageItems = StorageItemService.GetList(
+        StorageItemGroups = StorageItemService.GetListGrouped(
            filter: Filter,
            sorting: Sorting);
 
@@ -90,11 +106,33 @@
     {
         var pantries = PantryService.GetList();
 
-        var requiredIds = StorageItems.Select(item => item.PantryId)
+        var requiredIds = StorageItemGroups.Select(item => item.PantryId)
             .Distinct()
             .ToList();
 
-        Pantries = pantries.Where(item => requiredIds.Contains(item.Id))
-            .OrderBy(item => requiredIds.IndexOf(item.Id));
+        if (!string.IsNullOrEmpty(Filter.Name))
+            pantries = pantries.Where(item => requiredIds.Contains(item.Id));
+
+        if (Sorting.Name.IsEnabled)
+            pantries = pantries.OrderBy(item =>
+            {
+                var index = requiredIds.IndexOf(item.Id);
+                return index >= 0 ? index : int.MaxValue;
+            });
+        else
+            pantries = pantries.OrderBy(item => item.Name);
+
+        Pantries = pantries;
+    }
+
+    private IEnumerable<StorageItemDto> GetOrInitItems(StorageItemGroupDto storageItemGroup)
+    {
+        if (storageItemGroup.Items == default)
+            storageItemGroup.Items = StorageItemService.GetItemsOfGroup(
+                storageItemGroup.Name,
+                storageItemGroup.UnitDimensionId,
+                storageItemGroup.PantryId);
+
+        return storageItemGroup.Items;
     }
 }

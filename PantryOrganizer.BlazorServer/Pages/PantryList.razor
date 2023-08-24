@@ -1,7 +1,6 @@
 @page "/"
 @page "/pantries"
 @inject IPantryService PantryService
-@inject IJSRuntime JsRuntime
 
 <PageTitle>Pantries</PageTitle>
 
@@ -44,7 +43,7 @@
 
     public PantrySortingDto Sorting { get; set; } = new PantrySortingDto();
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
         UpdateList();
     }

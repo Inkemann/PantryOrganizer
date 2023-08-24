@@ -26,7 +26,7 @@
 
     private PantryDto Pantry { get; set; } = new PantryDto();
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
         if (Id.HasValue)
         {
