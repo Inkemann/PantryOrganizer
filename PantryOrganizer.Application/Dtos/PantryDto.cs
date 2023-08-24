@@ -15,5 +15,5 @@ public class PantryFilterDto
 
 public class PantrySortingDto
 {
-    public SortingParameter Name { get; set; } = new SortingParameter();
+    public SortingParameter Name { get; set; } = new();
 }

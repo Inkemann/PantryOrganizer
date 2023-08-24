@@ -11,7 +11,6 @@ public class UnitDto : IIdDto<Guid>
     public string? Name { get; set; }
     public string? AbbreviationPlural { get; set; }
     public string? NamePlural { get; set; }
-    public bool IsStorageUnit { get; set; }
     public UnitDimensionEnumDto? Dimension { get; set; }
 }
 
@@ -26,6 +25,6 @@ public class UnitFilterDto { }
 
 public class UnitSortingDto
 {
-    public SortingParameter ConversionFactor { get; set; } = new SortingParameter();
-    public SortingParameter Dimension { get; set; } = new SortingParameter();
+    public SortingParameter ConversionFactor { get; set; } = new();
+    public SortingParameter Dimension { get; set; } = new();
 }

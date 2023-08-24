@@ -28,6 +28,7 @@ public class StorageItemFilterDto
 
 public class StorageItemSortingDto
 {
-    public SortingParameter Name { get; set; } = new SortingParameter();
-    public SortingParameter Quantity { get; set; } = new SortingParameter();
+    public SortingParameter Name { get; set; } = new();
+    public SortingParameter Quantity { get; set; } = new();
+}
 }
