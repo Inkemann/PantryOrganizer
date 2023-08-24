@@ -1,4 +1,5 @@
-﻿using PantryOrganizer.Application.Dtos;
+﻿using PantryOrganizer.Application.AuxiliaryModels;
+using PantryOrganizer.Application.Dtos;
 using PantryOrganizer.Application.Extensions;
 using PantryOrganizer.Application.Query;
 using PantryOrganizer.Data.Models;
@@ -9,6 +10,15 @@ public class StorageItemFilter : AbstractFilter<StorageItemFilterDto, StorageIte
 {
     public StorageItemFilter()
         => FilterFor(storageItem => storageItem.Name)
+            .Contains(filter => filter.Name)
+            .IgnoreWhitespace();
+}
+
+public class StorageItemGroupFilter :
+    AbstractFilter<StorageItemGroupFilterDto, StorageItemGroup>
+{
+    public StorageItemGroupFilter()
+        => FilterFor(storageItemGroup => storageItemGroup.Name)
             .Contains(filter => filter.Name)
             .IgnoreWhitespace();
 }
