@@ -12,6 +12,7 @@
         <table class="table table-striped">
             <SortingTableHead Sorting="Sorting">
                 <tr>
+                    <th></th>
                     <SortingTableHeader CssClass="align-top col-8" @bind-SortingParameter="Sorting.Name" @bind-SortingParameter:after="UpdateList">
                         <InputText class="form-control" @bind-Value="Filter.Name" @bind-Value:after="UpdateList" />
                     </SortingTableHeader>
@@ -24,6 +25,7 @@
             {
                 <tbody>
                     <tr>
+                        <td></td>
                         <td colspan="2">
                             <span>@pantry.Name</span>
                             <a class="btn btn-sm btn-primary float-end" href="@($"storageitem?PantryId={pantry.Id}")">
@@ -34,6 +36,16 @@
                     @foreach (var storageItemGroup in StorageItemGroups.Where(item => item.PantryId == pantry.Id))
                     {
                         <tr @onclick="() => storageItemGroup.IsExpanded = !storageItemGroup.IsExpanded">
+                            <td>
+                                @if (storageItemGroup.IsExpanded)
+                                {
+                                    <span class="oi oi-caret-down"></span>
+                                }
+                                else
+                                {
+                                    <span class="oi oi-caret-right"></span>
+                                }
+                            </td>
                             <td>
                                 <a href="@($"storageitem/{GetOrInitItems(storageItemGroup).First().Id}")">
                                     <span>
@@ -54,6 +66,7 @@
                             @foreach (var storageItem in GetOrInitItems(storageItemGroup))
                             {
                                 <tr>
+                                    <td></td>
                                     <td><a href="@($"storageitem/{storageItem.Id}")"></a></td>
                                     <td>
                                         <a href="@($"storageitem/{storageItem.Id}")">
