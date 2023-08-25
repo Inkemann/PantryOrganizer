@@ -6,6 +6,8 @@ public class PantryDto : IIdDto<Guid>
 {
     public Guid Id { get; set; }
     public string? Name { get; set; }
+
+    public int ItemsCount { get; set; }
 }
 
 public class PantryFilterDto
@@ -16,4 +18,5 @@ public class PantryFilterDto
 public class PantrySortingDto
 {
     public SortingParameter Name { get; set; } = new();
+    public SortingParameter StorageItemsCount { get; set; } = new();
 }
