@@ -10,16 +10,13 @@
     </div>
     <div class="col-12">
         <table class="table table-striped">
-            <colgroup>
-                <col style="width: 60%" />
-                <col style="width: 40%" />
-            </colgroup>
             <SortingTableHead Sorting="Sorting">
                 <tr>
                     <SortingTableHeader CssClass="align-top" @bind-SortingParameter="Sorting.Name" @bind-SortingParameter:after="UpdateList">
+                    <SortingTableHeader CssClass="align-top col-8" @bind-SortingParameter="Sorting.Name" @bind-SortingParameter:after="UpdateList">
                         <InputText class="form-control" @bind-Value="Filter.Name" @bind-Value:after="UpdateList" />
                     </SortingTableHeader>
-                    <th class="align-top">
+                    <th class="align-top col-4">
                         Quantity
                     </th>
                 </tr>
@@ -40,13 +37,14 @@
                         <tr @onclick="() => storageItemGroup.IsExpanded = !storageItemGroup.IsExpanded">
                             <td>
                                 <a href="@($"storageitem/{GetOrInitItems(storageItemGroup).First().Id}?WithGroup={storageItemGroup.ItemCount > 1}")">
+                                <a href="@($"storageitem/{GetOrInitItems(storageItemGroup).First().Id}")">
                                     <span>
                                         @storageItemGroup.Name
                                     </span>
                                 </a>
                             </td>
                             <td>
-                                <a href="@($"storageitem/{GetOrInitItems(storageItemGroup).First().Id}?WithGroup={storageItemGroup.ItemCount > 1}")">
+                                <a href="@($"storageitem/{GetOrInitItems(storageItemGroup).First().Id}")">
                                     <span>
                                         @($"{storageItemGroup.Quantity:G0} {(storageItemGroup.Quantity == 1 ? storageItemGroup.Unit?.Abbreviation : storageItemGroup.Unit?.AbbreviationPlural)}")
                                     </span>
@@ -59,8 +57,9 @@
                             {
                                 <tr>
                                     <td><a href="@($"storageitem/{storageItem.Id}?WithGroup=true")"></a></td>
+                                    <td><a href="@($"storageitem/{storageItem.Id}")"></a></td>
                                     <td>
-                                        <a href="@($"storageitem/{storageItem.Id}?WithGroup=true")">
+                                        <a href="@($"storageitem/{storageItem.Id}")">
                                             <span>
                                                 @($"{storageItem.Quantity:G0} {(storageItem.Quantity == 1 ? storageItem.Unit?.Abbreviation : storageItem.Unit?.AbbreviationPlural)}")
                                             </span>

@@ -11,7 +11,7 @@
     <FluentValidationValidator DisableAssemblyScanning="true" />
 
     <div class="row gy-2 gy-md-4">
-        @if (WithGroup)
+        @if (Group.Count() > 1)
         {
             <div class="col-12">
                 <InputSelect class="form-control" @bind-Value:get="StorageItem.Id" @bind-Value:set="GoToItem">
@@ -88,9 +88,6 @@
     [SupplyParameterFromQuery]
     public Guid? PantryId { get; set; }
 
-    [Parameter]
-    [SupplyParameterFromQuery]
-    public bool WithGroup { get; set; }
     public IEnumerable<StorageItemDto> Group { get; set; } = new List<StorageItemDto>();
 
     public IEnumerable<PantryDto> Pantries { get; set; } = new List<PantryDto>();
@@ -197,7 +194,6 @@
 
     private void UpdateGroup()
     {
-        if (WithGroup)
             Group = StorageItemService.GetItemsOfGroup(
                 StorageItem.Name,
                 StorageItem.UnitDimensionId,
@@ -206,6 +202,6 @@
 
     private void GoToItem(Guid id)
     {
-        Navigation.NavigateTo($"storageitem/{id}?{nameof(WithGroup)}={WithGroup}");
+        Navigation.NavigateTo($"storageitem/{id}");
     }
 }
