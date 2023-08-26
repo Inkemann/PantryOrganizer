@@ -25,13 +25,15 @@ steps:
   displayName: 'Build solution'
   inputs:
     command: 'build'
-    projects: 'BlazorChatSample.sln'
+    projects: 'PantryOrganizer.sln'
     arguments: '--configuration $(buildConfiguration) --no-restore'
 
 - task: DotNetCoreCLI@2
   displayName: 'Publish Blazor Server project'
   inputs:
     command: 'publish'
+    publishWebProjects: false
+    projects: 'PantryOrganizer.BlazorServer\PantryOrganizer.BlazorServer.csproj'
     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) --self-contained true --runtime linux-x64 --no-build'
   
 - task: PublishBuildArtifacts@1
