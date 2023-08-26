@@ -15,27 +15,12 @@ steps:
     version: '7.0.x'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Restore packages'
-  inputs:
-    command: 'restore'
-    projects: 'PantryOrganizer.sln'
-    feedsToUse: 'select'
-    argument: '--framework net7.0'
-
-- task: DotNetCoreCLI@2
-  displayName: 'Build solution'
-  inputs:
-    command: 'build'
-    projects: 'PantryOrganizer.sln'
-    arguments: '--configuration $(buildConfiguration) --framework net7.0 --no-restore'
-
-- task: DotNetCoreCLI@2
   displayName: 'Publish Blazor Server project'
   inputs:
     command: 'publish'
     publishWebProjects: false
     projects: 'PantryOrganizer.BlazorServer/PantryOrganizer.BlazorServer.csproj'
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) --framework net7.0 --self-contained true --runtime linux-x64 --no-build'
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) --framework net7.0 --self-contained true --runtime linux-x64'
   
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Build Artifacts'
