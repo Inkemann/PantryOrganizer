@@ -45,7 +45,7 @@ public abstract class IdDtoService<TData, TDto, TId, TSorting, TFilter> :
         TSorting? sorting = default,
         IPagination? paginationData = default)
         => mapper.ProjectTo<TDto>(
-                context.Set<TData>()
+                PrepareQuery(context.Set<TData>())
                     .Filter(this.filter, filter)
                     .Sort(sorter, sorting)
                     .Paginate(paginationData))
@@ -56,7 +56,7 @@ public abstract class IdDtoService<TData, TDto, TId, TSorting, TFilter> :
     {
         try
         {
-            var entity = mapper.ProjectTo<TDto>(context.Set<TData>())
+            var entity = mapper.ProjectTo<TDto>(PrepareQuery(context.Set<TData>()))
                 .SingleOrDefault(item => item.Id.Equals(id));
 
             return new EntityResult<TDto>(entity);
@@ -162,6 +162,8 @@ public abstract class IdDtoService<TData, TDto, TId, TSorting, TFilter> :
             return new ActionResult(ex);
         }
     }
+
+    protected virtual IQueryable<TData> PrepareQuery(IQueryable<TData> query) => query;
 
     public class EntityChangeEventArgs : EventArgs
     {
