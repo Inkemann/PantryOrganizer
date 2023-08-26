@@ -20,13 +20,14 @@ steps:
     command: 'restore'
     projects: 'PantryOrganizer.sln'
     feedsToUse: 'select'
+    argument: '--framework net7.0'
 
 - task: DotNetCoreCLI@2
   displayName: 'Build solution'
   inputs:
     command: 'build'
     projects: 'PantryOrganizer.sln'
-    arguments: '--configuration $(buildConfiguration) --no-restore'
+    arguments: '--configuration $(buildConfiguration) --framework net7.0 --no-restore'
 
 - task: DotNetCoreCLI@2
   displayName: 'Publish Blazor Server project'
