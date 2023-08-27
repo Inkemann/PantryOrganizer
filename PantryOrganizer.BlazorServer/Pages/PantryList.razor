@@ -1,29 +1,30 @@
 @page "/"
 @page "/pantries"
+@inject IStringLocalizer<App> Localizer
 @inject IPantryService PantryService
 
 <PageTitle>Pantries</PageTitle>
 
 <div class="row gy-2 gy-md-4">
     <div class="d-flex justify-content-between align-items-center">
-        <h1 class="float-start">Pantries</h1>
+        <h1 class="float-start">@Localizer["Pantries"]</h1>
         <a class="btn btn-primary" href="pantry">
             <span class="oi oi-plus"></span>
         </a>
     </div>
 
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped" style="table-layout: fixed">
             <colgroup>
                 <col class="col-8" />
                 <col class="col-4" />
             </colgroup>
             <SortingTableHead Sorting="Sorting">
                 <tr>
-                    <SortingTableHeader class="align-top" @bind-SortingParameter="Sorting.Name" @bind-SortingParameter:after="UpdateList" Text="Name">
+                    <SortingTableHeader class="align-top" @bind-SortingParameter="Sorting.Name" @bind-SortingParameter:after="UpdateList" Text="@Localizer["Name"]">
                         <InputText class="form-control" @bind-Value="Filter.Name" @bind-Value:after="UpdateList" />
                     </SortingTableHeader>
-                    <SortingTableHeader class="align-top" @bind-SortingParameter="Sorting.StorageItemsCount" @bind-SortingParameter:after="UpdateList" Text="# Items stored" />
+                    <SortingTableHeader class="align-top" @bind-SortingParameter="Sorting.StorageItemsCount" @bind-SortingParameter:after="UpdateList" Text="@Localizer["# Items stored"]" />
                 </tr>
             </SortingTableHead>
             <tbody>

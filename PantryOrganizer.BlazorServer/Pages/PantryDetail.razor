@@ -1,5 +1,6 @@
 @page "/pantry/{Id:guid}"
 @page "/pantry"
+@inject IStringLocalizer<App> Localizer
 @inject IPantryService PantryService
 @inject NavigationManager Navigation
 
@@ -10,13 +11,19 @@
 
     <div class="row gy-2 gy-md-4">
         <div class="col-12">
-            <label class="form-label">Name</label>
+            <label class="form-label">@Localizer["Name"]</label>
             <InputText class="form-control" @bind-Value="Pantry.Name" />
             <ValidationMessage For="() => Pantry.Name"></ValidationMessage>
         </div>
-        <button class="btn btn-primary" type="submit">Save</button>
-        <button class="btn btn-danger" type="button" @onclick="() => Delete()">Delete</button>
-        <button class="btn btn-secondary" type="button" @onclick="@(() => Navigation.NavigateTo("pantries"))">Close</button>
+        <button class="btn btn-primary" type="submit">
+            @Localizer["Save"]
+        </button>
+        <button class="btn btn-danger" type="button" @onclick="() => Delete()">
+            @Localizer["Delete"]
+        </button>
+        <a class="btn btn-secondary" type="button" href="pantries">
+            @Localizer["Close"]
+        </a>
     </div>
 </EditForm>
 

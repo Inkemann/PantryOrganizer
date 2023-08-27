@@ -1,5 +1,6 @@
 @page "/storageitem/{Id:guid}"
 @page "/storageitem"
+@inject IStringLocalizer<App> Localizer
 @inject IStorageItemService StorageItemService
 @inject IUnitService UnitService
 @inject IPantryService PantryService
@@ -26,22 +27,22 @@
         }
 
         <div class="col-md-4 col-xxl-3">
-            <label class="form-label">Name</label>
+            <label class="form-label">@Localizer["Name"]</label>
             <InputText class="form-control" @bind-Value="StorageItem.Name" />
             <ValidationMessage For="() => StorageItem.Name"></ValidationMessage>
         </div>
         <div class="col-md-4 col-xxl-3">
-            <label class="form-label">Quantity</label>
+            <label class="form-label">@Localizer["Quantity"]</label>
             <InputFormatNumber class="form-control" @bind-Value="StorageItem.Quantity" Format="G0" />
             <ValidationMessage For="() => StorageItem.Quantity"></ValidationMessage>
         </div>
         <div class="col-md-4 col-xxl-3">
-            <label class="form-label">Note</label>
+            <label class="form-label">@Localizer["Note"]</label>
             <InputTextArea class="form-control" @bind-Value="StorageItem.Note" />
             <ValidationMessage For="() => StorageItem.Note"></ValidationMessage>
         </div>
         <div class="col-md-4 col-xxl-3">
-            <label class="form-label">Unit</label>
+            <label class="form-label">@Localizer["Unit"]</label>
             <InputSelect class="form-control" @bind-Value:get="StorageItem.UnitId" @bind-Value:set="UnitChanged">
                 @if (!StorageItem.UnitId.HasValue)
                 {
@@ -57,7 +58,7 @@
             <ValidationMessage For="() => StorageItem.UnitId"></ValidationMessage>
         </div>
         <div class="col-md-4 col-xxl-3">
-            <label class="form-label">Pantry</label>
+            <label class="form-label">@Localizer["Pantry"]</label>
             <InputSelect class="form-control" @bind-Value="StorageItem.PantryId">
                 @if (StorageItem.PantryId == default)
                 {
@@ -71,13 +72,19 @@
             <ValidationMessage For="() => StorageItem.PantryId"></ValidationMessage>
         </div>
         <div class="col-md-4 col-xxl-3">
-            <label class="form-label">Expiration date</label>
+            <label class="form-label">@Localizer["Expiration date"]</label>
             <InputDate class="form-control" @bind-Value="StorageItem.ExpirationDate" />
             <ValidationMessage For="() => StorageItem.ExpirationDate"></ValidationMessage>
         </div>
-        <button class="btn btn-primary" type="submit">Save</button>
-        <button class="btn btn-danger" type="button" @onclick="() => Delete()">Delete</button>
-        <button class="btn btn-secondary" type="button" @onclick="@(() => Navigation.NavigateTo("storageitems"))">Close</button>
+        <button class="btn btn-primary" type="submit">
+            @Localizer["Save"]
+        </button>
+        <button class="btn btn-danger" type="button" @onclick="() => Delete()">
+            @Localizer["Delete"]
+        </button>
+        <button class="btn btn-secondary" type="button" @onclick="@(() => Navigation.NavigateTo("storageitems"))">
+            @Localizer["Close"]
+        </button>
     </div>
 </EditForm>
 
