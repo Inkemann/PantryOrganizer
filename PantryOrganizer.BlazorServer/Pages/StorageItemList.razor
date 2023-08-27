@@ -45,13 +45,16 @@
                     {
                         <tr @onclick="() => storageItemGroup.IsExpanded = !storageItemGroup.IsExpanded">
                             <td>
-                                @if (storageItemGroup.IsExpanded)
+                                @if (storageItemGroup.ItemCount > 1)
                                 {
-                                    <span class="oi oi-caret-bottom"></span>
-                                }
-                                else
-                                {
-                                    <span class="oi oi-caret-right"></span>
+                                    @if (storageItemGroup.IsExpanded)
+                                    {
+                                        <span class="oi oi-caret-bottom"></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="oi oi-caret-right"></span>
+                                    }
                                 }
                             </td>
                             <td>
