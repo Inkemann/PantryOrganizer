@@ -19,7 +19,7 @@
                     @foreach (var storageItem in Group)
                     {
                         <option value="@storageItem.Id">
-                            @($"{storageItem.Quantity:G0} {(storageItem.Quantity == 1 ? storageItem.Unit?.Abbreviation : storageItem.Unit?.AbbreviationPlural)} ({storageItem.StoredDate:dd.MM.yyyy})")
+                            @($"{storageItem.Quantity:G0} {(storageItem.Quantity == 1 ? storageItem.Unit?.Abbreviation : storageItem.Unit?.AbbreviationPlural)}{storageItem.ExpirationDate: (dd.MM.yyyy)}")
                         </option>
                     }
                 </InputSelect>
@@ -72,7 +72,17 @@
             <ValidationMessage For="() => StorageItem.PantryId"></ValidationMessage>
         </div>
         <div class="col-md-4 col-xxl-3">
-            <label class="form-label">@Localizer["Expiration date"]</label>
+            <label class="form-label">
+                @if (StorageItem.IsExpired)
+                {
+                    <span class="oi oi-warning pe-1" style="color: red"></span>
+                }
+                else if (StorageItem.IsCloseToExpiration)
+                {
+                    <span class="oi oi-warning pe-1" style="color: orange"></span>
+                }
+                @Localizer["Expiration date"]
+            </label>
             <InputDate class="form-control" @bind-Value="StorageItem.ExpirationDate" />
             <ValidationMessage For="() => StorageItem.ExpirationDate"></ValidationMessage>
         </div>

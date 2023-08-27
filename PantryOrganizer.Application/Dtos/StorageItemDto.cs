@@ -19,6 +19,12 @@ public class StorageItemDto : IIdDto<Guid>
     public Guid? UnitId { get; set; }
     public UnitDimensionEnumDto UnitDimensionId { get; set; }
     public UnitDto? Unit { get; set; }
+
+    public bool IsExpired
+        => ExpirationDate.HasValue && ExpirationDate.Value < DateTime.Now;
+    public bool IsCloseToExpiration
+        => ExpirationDate.HasValue
+            && ExpirationDate.Value.Subtract(DateTime.Now) <= new TimeSpan(7, 0, 0, 0);
 }
 
 public class StorageItemFilterDto

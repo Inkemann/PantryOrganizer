@@ -74,8 +74,22 @@
                             @foreach (var storageItem in GetOrInitItems(storageItemGroup))
                             {
                                 <tr>
-                                    <td></td>
-                                    <td><a href="@($"storageitem/{storageItem.Id}")"></a></td>
+                                    <td>
+                                        @if (storageItem.IsExpired)
+                                        {
+                                            <span class="oi oi-warning" style="color: red"></span>
+                                        }
+                                        else if (storageItem.IsCloseToExpiration)
+                                        {
+                                            <span class="oi oi-warning" style="color: orange"></span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="@($"storageitem/{storageItem.Id}")">
+
+                                            @($"{storageItem.ExpirationDate:dd.MM.yyyy}")
+                                        </a>
+                                    </td>
                                     <td>
                                         <a href="@($"storageitem/{storageItem.Id}")">
                                             <span>
