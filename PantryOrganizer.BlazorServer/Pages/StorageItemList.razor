@@ -5,11 +5,15 @@
 <PageTitle>Storage items</PageTitle>
 
 <div class="row gy-2 gy-md-4">
-    <div class="col-12">
-        <h1>Storage items</h1>
-    </div>
-    <div class="col-12">
+    <h1>Storage items</h1>
+
+    <div class="table-responsive">
         <table class="table table-striped">
+            <colgroup>
+                <col style="width: 32px" />
+                <col />
+                <col />
+            </colgroup>
             <SortingTableHead Sorting="Sorting">
                 <tr>
                     <SortingTableHeader class="align-top" colspan="2" @bind-SortingParameter="Sorting.Name" @bind-SortingParameter:after="UpdateList">
@@ -24,8 +28,7 @@
             {
                 <tbody>
                     <tr>
-                        <td></td>
-                        <td colspan="2">
+                        <td colspan="3">
                             <span>@pantry.Name</span>
                             <a class="btn btn-sm btn-primary float-end" href="@($"storageitem?PantryId={pantry.Id}")">
                                 <span class="oi oi-plus"></span>
@@ -38,7 +41,7 @@
                             <td>
                                 @if (storageItemGroup.IsExpanded)
                                 {
-                                    <span class="oi oi-caret-down"></span>
+                                    <span class="oi oi-caret-bottom"></span>
                                 }
                                 else
                                 {
