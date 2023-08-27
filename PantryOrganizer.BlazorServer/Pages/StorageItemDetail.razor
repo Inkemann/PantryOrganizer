@@ -137,24 +137,11 @@
 
     private void Save()
     {
-        if (Id.HasValue)
-        {
-            var updateResult = StorageItemService.Update(StorageItem);
-
-            if (updateResult.IsSuccess)
-                StorageItem = updateResult.Result!;
-
+        var result = StorageItemService.AddOrUpdate(StorageItem);
             UpdateGroup();
-        }
-        else
-        {
-            var addResult = StorageItemService.Add(StorageItem);
 
-            if (addResult.IsSuccess)
-                Navigation.NavigateTo($"storageitem/{addResult.Result!.Id}");
-            else
-                Navigation.NavigateTo("storageitems");
-        }
+        if (result.IsSuccess)
+            Navigation.NavigateTo($"storageitems");
     }
 
     private void Delete()

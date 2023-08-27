@@ -24,6 +24,8 @@ public interface IEntityService<TDto, TId>
 {
     public EntityResult<TDto> GetById(TId id);
 
+    public EntityResult<TDto> AddOrUpdate(TDto item);
+
     public EntityResult<TDto> Add(TDto item);
 
     public EntityResult<TDto> Update(TDto item);

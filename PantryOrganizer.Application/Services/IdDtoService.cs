@@ -67,6 +67,11 @@ public abstract class IdDtoService<TData, TDto, TId, TSorting, TFilter> :
         }
     }
 
+    public virtual EntityResult<TDto> AddOrUpdate(TDto item)
+        => EqualityComparer<TId>.Default.Equals(item.Id, default)
+            ? Add(item)
+            : Update(item);
+
     public virtual EntityResult<TDto> Add(TDto item)
     {
         try
@@ -125,10 +130,8 @@ public abstract class IdDtoService<TData, TDto, TId, TSorting, TFilter> :
             else
                 context.Set<TData>().Update(entity);
 
-            bool success = context.SaveChanges() > 0;
-
             var result = mapper.Map<TDto>(entity);
-            return new EntityResult<TDto>(result, success, false);
+            return new EntityResult<TDto>(result);
         }
         catch (Exception ex)
         {

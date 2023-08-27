@@ -39,22 +39,10 @@
 
     private void Save()
     {
-        if (Id.HasValue)
-        {
-            var updateResult = PantryService.Update(Pantry);
+        var result = PantryService.AddOrUpdate(Pantry);
 
-            if (updateResult.IsSuccess)
-                Pantry = updateResult.Result!;
-        }
-        else
-        {
-            var addResult = PantryService.Add(Pantry);
-
-            if (addResult.IsSuccess)
-                Navigation.NavigateTo($"pantry/{addResult.Result!.Id}");
-            else
-                Navigation.NavigateTo("pantries");
-        }
+        if (result.IsSuccess)
+            Navigation.NavigateTo($"pantries");
     }
 
     private void Delete()
