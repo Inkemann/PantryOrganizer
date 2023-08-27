@@ -130,6 +130,8 @@ public abstract class IdDtoService<TData, TDto, TId, TSorting, TFilter> :
             else
                 context.Set<TData>().Update(entity);
 
+            context.SaveChanges();
+
             var result = mapper.Map<TDto>(entity);
             return new EntityResult<TDto>(result);
         }
