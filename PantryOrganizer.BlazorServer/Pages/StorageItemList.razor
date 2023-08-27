@@ -12,11 +12,10 @@
         <table class="table table-striped">
             <SortingTableHead Sorting="Sorting">
                 <tr>
-                    <th></th>
-                    <SortingTableHeader CssClass="align-top col-8" @bind-SortingParameter="Sorting.Name" @bind-SortingParameter:after="UpdateList">
+                    <SortingTableHeader class="align-top" colspan="2" @bind-SortingParameter="Sorting.Name" @bind-SortingParameter:after="UpdateList">
                         <InputText class="form-control" @bind-Value="Filter.Name" @bind-Value:after="UpdateList" />
                     </SortingTableHeader>
-                    <th class="align-top col-4">
+                    <th class="align-top">
                         Quantity
                     </th>
                 </tr>

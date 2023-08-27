@@ -1,7 +1,7 @@
 ﻿@using System.Linq.Expressions;
 @using System.Reflection;
 
-<th class="@CssClass">
+<th @attributes="InputAttributes">
     <div class="mb-1 d-flex flex-row align-items-center gap-1">
         @switch (SortingParameter?.Direction)
         {
@@ -40,8 +40,8 @@
     [Parameter]
     public string? Text { get; set; }
 
-    [Parameter]
-    public string? CssClass { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? InputAttributes { get; set; }
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }

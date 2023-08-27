@@ -15,10 +15,10 @@
         <table class="table table-striped">
             <SortingTableHead Sorting="Sorting">
                 <tr>
-                    <SortingTableHeader CssClass="align-top col-8" @bind-SortingParameter="Sorting.Name" @bind-SortingParameter:after="UpdateList" Text="Name">
+                    <SortingTableHeader class="align-top" @bind-SortingParameter="Sorting.Name" @bind-SortingParameter:after="UpdateList" Text="Name">
                         <InputText class="form-control" @bind-Value="Filter.Name" @bind-Value:after="UpdateList" />
                     </SortingTableHeader>
-                    <SortingTableHeader CssClass="align-top col-4" @bind-SortingParameter="Sorting.StorageItemsCount" @bind-SortingParameter:after="UpdateList" Text="# Items stored" />
+                    <SortingTableHeader class="align-top" @bind-SortingParameter="Sorting.StorageItemsCount" @bind-SortingParameter:after="UpdateList" Text="# Items stored" />
                 </tr>
             </SortingTableHead>
             <tbody>

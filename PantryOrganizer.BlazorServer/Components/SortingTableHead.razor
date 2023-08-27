@@ -1,4 +1,4 @@
-﻿<thead class="@CssClass">
+﻿<thead @attributes="InputAttributes">
     <CascadingValue Value="Sorting">
         @ChildContent
     </CascadingValue>
@@ -8,8 +8,8 @@
     [Parameter, EditorRequired]
     public required object Sorting { get; set; }
 
-    [Parameter]
-    public string? CssClass { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? InputAttributes { get; set; }
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
