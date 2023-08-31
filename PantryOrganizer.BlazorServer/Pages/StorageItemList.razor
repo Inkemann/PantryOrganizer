@@ -2,10 +2,14 @@
 @inject IStringLocalizer<App> Localizer
 @inject IStorageItemService StorageItemService
 @inject IPantryService PantryService
+@inject NavigationManager Navigation
 
 <PageTitle>Storage items</PageTitle>
 
 <div class="row gy-2 gy-md-4">
+    <BarcodeReader OnScanned="OnBarcodeScanned" StopOnFirstScan="true" @bind-IsScanning="IsScanning" class="d-none" />
+    <span class="oi oi-media-record" style="color: @(IsScanning ? "green" : "red")"></span>
+
     <div class="d-flex justify-content-between align-items-center">
         <h1>@Localizer["Storage items"]</h1>
         <a class="btn btn-primary" href="storageitem">
@@ -114,13 +118,15 @@
 
 @code {
     public IEnumerable<StorageItemGroupDto> StorageItemGroups { get; set; }
-        = new List<StorageItemGroupDto>();
+    = new List<StorageItemGroupDto>();
 
     public IEnumerable<PantryDto> Pantries { get; set; } = new List<PantryDto>();
 
     public StorageItemGroupFilterDto Filter { get; set; } = new StorageItemGroupFilterDto();
 
     public StorageItemGroupSortingDto Sorting { get; set; } = new StorageItemGroupSortingDto();
+
+    public bool IsScanning { get; set; }
 
     protected override void OnParametersSet()
     {
@@ -168,5 +174,10 @@
                 storageItemGroup.PantryId);
 
         return storageItemGroup.Items;
+    }
+
+    private void OnBarcodeScanned(string? result)
+    {
+        Navigation.NavigateTo($"storageitem");
     }
 }
