@@ -11,6 +11,8 @@
 <EditForm Model="@StorageItem" OnValidSubmit="@Save">
     <FluentValidationValidator DisableAssemblyScanning="true" />
 
+    <BarcodeReader @ref="BarcodeReader" OnScanned="OnBarcodeScanned" StopOnFirstScan="true" @bind-IsScanning="IsScanning" class="d-none" />
+
     <div class="row gy-2 gy-md-4">
         @if (Group.Count() > 1)
         {
@@ -37,9 +39,12 @@
             <ValidationMessage For="() => StorageItem.Quantity"></ValidationMessage>
         </div>
         <div class="col-md-4 col-xxl-3">
-            <label class="form-label">@Localizer["Note"]</label>
-            <InputTextArea class="form-control" @bind-Value="StorageItem.Note" />
-            <ValidationMessage For="() => StorageItem.Note"></ValidationMessage>
+            <label class="form-label d-flex justify-content-between">
+                <span>@Localizer["Remaining percentage"]</span>
+                <span>@($"{PercentageSliderValue} %")</span>
+            </label>
+            <InputRange type="range" class=" form-control form-range border-0" @bind-Value="PercentageSliderValue" Format="G0" min="10" max="100" step="10" />
+            <ValidationMessage For="() => StorageItem.Quantity"></ValidationMessage>
         </div>
         <div class="col-md-4 col-xxl-3">
             <label class="form-label">@Localizer["Unit"]</label>
@@ -86,6 +91,22 @@
             <InputDate class="form-control" @bind-Value="StorageItem.ExpirationDate" />
             <ValidationMessage For="() => StorageItem.ExpirationDate"></ValidationMessage>
         </div>
+        <div class="col-md-4 col-xxl-3">
+            <label class="form-label">@Localizer["Note"]</label>
+            <InputTextArea class="form-control" @bind-Value="StorageItem.Note" />
+            <ValidationMessage For="() => StorageItem.Note"></ValidationMessage>
+        </div>
+        <div class="col-md-4 col-xxl-3">
+            <label class="form-label d-flex gap-2">
+                <span>@Localizer["EAN"]</span>
+                @if (IsScanning)
+                {
+                    <span class="oi oi-media-record" style="color: green"></span>
+                }
+                </label>
+            <InputText class="form-control" @bind-Value="StorageItem.Ean" readonly @onclick="() => BarcodeReader?.Start()" />
+            <ValidationMessage For="() => StorageItem.Ean"></ValidationMessage>
+        </div>
         <button class="btn btn-primary" type="submit">
             @Localizer["Save"]
         </button>
@@ -101,16 +122,34 @@
 @code {
     [Parameter]
     public Guid? Id { get; set; }
+
     [Parameter]
     [SupplyParameterFromQuery]
     public Guid? PantryId { get; set; }
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Ean { get; set; }
+
     public IEnumerable<StorageItemDto> Group { get; set; } = new List<StorageItemDto>();
 
     public IEnumerable<PantryDto> Pantries { get; set; } = new List<PantryDto>();
+
     public IEnumerable<UnitDto> Units = new List<UnitDto>();
 
     private StorageItemDto StorageItem { get; set; } = new StorageItemDto();
+
+    public BarcodeReader? BarcodeReader { get; set; }
+
+    public bool IsScanning { get; set; }
+
+    private int PercentageSliderValue
+    {
+        get => StorageItem.RemainingPercentage.HasValue ?
+            ((int)Math.Round(StorageItem.RemainingPercentage.Value * 10d)) * 10
+            : 100;
+        set => StorageItem.RemainingPercentage = value / 100d;
+    }
 
     protected override void OnParametersSet()
     {
@@ -147,6 +186,9 @@
         {
             if (PantryId.HasValue)
                 StorageItem.PantryId = PantryId;
+
+            if (Ean is not null)
+                StorageItem.Ean = Ean;
         }
 
         UpdateGroup();
@@ -207,5 +249,10 @@
     private void GoToItem(Guid id)
     {
         Navigation.NavigateTo($"storageitem/{id}");
+    }
+
+    private void OnBarcodeScanned(string result)
+    {
+        Navigation.NavigateTo($"storageitem?Ean={result}");
     }
 }

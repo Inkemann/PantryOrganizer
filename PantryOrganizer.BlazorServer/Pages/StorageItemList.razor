@@ -7,7 +7,7 @@
 <PageTitle>Storage items</PageTitle>
 
 <div class="row gy-2 gy-md-4">
-    <BarcodeReader OnScanned="OnBarcodeScanned" StopOnFirstScan="true" @bind-IsScanning="IsScanning" class="d-none" />
+    <BarcodeReader @ref="BarcodeReader" OnScanned="OnBarcodeScanned" StopOnFirstScan="true" @bind-IsScanning="IsScanning" class="d-none" />
     <span class="oi oi-media-record" style="color: @(IsScanning ? "green" : "red")"></span>
 
     <div class="d-flex justify-content-between align-items-center">
@@ -118,7 +118,7 @@
 
 @code {
     public IEnumerable<StorageItemGroupDto> StorageItemGroups { get; set; }
-    = new List<StorageItemGroupDto>();
+        = new List<StorageItemGroupDto>();
 
     public IEnumerable<PantryDto> Pantries { get; set; } = new List<PantryDto>();
 
@@ -126,11 +126,23 @@
 
     public StorageItemGroupSortingDto Sorting { get; set; } = new StorageItemGroupSortingDto();
 
+    public BarcodeReader? BarcodeReader { get; set; }
+
     public bool IsScanning { get; set; }
 
     protected override void OnParametersSet()
     {
         UpdateList();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender)
+        {
+            BarcodeReader?.Start();
+        }
     }
 
     private void UpdateList()
@@ -176,8 +188,8 @@
         return storageItemGroup.Items;
     }
 
-    private void OnBarcodeScanned(string? result)
+    private void OnBarcodeScanned(string result)
     {
-        Navigation.NavigateTo($"storageitem");
+        Navigation.NavigateTo($"storageitem?Ean={result}");
     }
 }
