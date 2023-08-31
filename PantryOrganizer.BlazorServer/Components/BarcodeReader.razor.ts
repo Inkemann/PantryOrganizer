@@ -25,7 +25,7 @@ class BarcodeReader
     dotNetObjRef: DotNetObjectReference;
     videoElementId: string;
     stopOnFirstScan: boolean;
-    barcodeDetector: BarcodeDetector;
+    barcodeDetector: BarcodeDetector = null;
     detections: number = 0;
 
     constructor(
@@ -40,7 +40,6 @@ class BarcodeReader
         if (this.hasBarcodeSupport())
         {
             this.barcodeDetector = new BarcodeDetector();
-            this.init();
         }
         else
         {
@@ -57,8 +56,15 @@ class BarcodeReader
         return await BarcodeDetector.getSupportedFormats().length > 0;
     }
 
-    async init()
+    async start()
     {
+        if (this.barcodeDetector === null)
+        {
+            this.dotNetObjRef.invokeMethodAsync(
+                'SetError',
+                'Barcode Detection API is not supported.');
+        }
+
         const stream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: {

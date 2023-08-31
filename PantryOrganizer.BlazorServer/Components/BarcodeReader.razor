@@ -49,12 +49,15 @@
         }
     }
 
+    public void Start()
+        => jsReference?.InvokeVoidAsync("start");
+
     [JSInvokable]
-    public async Task SetError(string? error)
+    public async Task SetError(string error)
         => await OnError.InvokeAsync(new Exception(error));
 
     [JSInvokable]
-    public async Task SetResult(string? result)
+    public async Task SetResult(string result)
         => await OnScanned.InvokeAsync(result);
 
     [JSInvokable]
