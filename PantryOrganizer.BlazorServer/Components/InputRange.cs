@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace PantryOrganizer.BlazorServer.Components;
 
-public class InputFormatNumber<TValue>
+public class InputRange<TValue>
     : InputBase<TValue>
 {
     private static readonly string stepAttributeValue = GetStepAttributeValue();
@@ -40,7 +40,7 @@ public class InputFormatNumber<TValue>
         builder.OpenElement(0, "input");
         builder.AddAttribute(1, "step", stepAttributeValue);
         builder.AddMultipleAttributes(2, AdditionalAttributes);
-        builder.AddAttribute(3, "type", "number");
+        builder.AddAttribute(3, "type", "range");
         if (CssClass != default)
             builder.AddAttribute(4, "class", CssClass);
         builder.AddAttribute(5, "value", BindConverter.FormatValue(CurrentValueAsString));
