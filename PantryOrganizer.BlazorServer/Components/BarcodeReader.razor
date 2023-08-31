@@ -1,0 +1,72 @@
+@implements IDisposable
+@inject IJSRuntime JsRuntime
+
+
+<video id="@videoElementId" @attributes="InputAttributes" muted></video>
+
+@code {
+    private string videoElementId = $"barcode-reader-{Guid.NewGuid()}";
+    private DotNetObjectReference<BarcodeReader>? thisReference;
+    private IJSObjectReference? jsReference;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? InputAttributes { get; set; }
+
+    [Parameter]
+    public bool StopOnFirstScan { get; set; }
+
+    [Parameter]
+    public EventCallback<Exception> OnError { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnScanned { get; set; }
+
+    [Parameter]
+    public bool IsScanning { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsScanningChanged { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (!firstRender) return;
+            thisReference = DotNetObjectReference.Create(this);
+            await using var module = await JsRuntime.InvokeAsync<IJSObjectReference>(
+                "import",
+                $"./Components/BarcodeReader.razor.js");
+
+            jsReference = await module.InvokeAsync<IJSObjectReference>(
+                "GetInstace",
+                thisReference,
+                videoElementId,
+                StopOnFirstScan);
+        }
+        catch (Exception e)
+        {
+            await (OnError.InvokeAsync(e) ?? Task.CompletedTask);
+        }
+    }
+
+    [JSInvokable]
+    public async Task SetError(string? error)
+        => await OnError.InvokeAsync(new Exception(error));
+
+    [JSInvokable]
+    public async Task SetResult(string? result)
+        => await OnScanned.InvokeAsync(result);
+
+    [JSInvokable]
+    public async Task SetScanning(bool isScanning)
+    {
+        IsScanning = isScanning;
+        await IsScanningChanged.InvokeAsync(IsScanning);
+    }
+
+    public void Dispose()
+    {
+        jsReference?.DisposeAsync();
+        thisReference?.Dispose();
+    }
+}
