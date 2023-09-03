@@ -72,7 +72,7 @@
 
     public async ValueTask Start()
     {
-        if (hasRendered)
+        if (hasRendered && HasBarcodeSupport)
             await (jsReference?.InvokeVoidAsync("start") ?? ValueTask.CompletedTask);
         else
             shouldStart = true;
