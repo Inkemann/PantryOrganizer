@@ -23,7 +23,7 @@ interface BarcodeDetector
 class BarcodeReader
 {
     dotNetObjRef: DotNetObjectReference;
-    videoElementId: string;
+    video: HTMLVideoElement;
     stopOnFirstScan: boolean;
     barcodeDetector: BarcodeDetector = null;
     detections: number = 0;
@@ -34,10 +34,22 @@ class BarcodeReader
         stopOnFirstScan: boolean)
     {
         this.dotNetObjRef = dotNetObjRef;
-        this.videoElementId = videoElementId;
         this.stopOnFirstScan = stopOnFirstScan;
 
-        if (this.hasBarcodeSupport())
+        const element = document.querySelector(`#${videoElementId}`);
+
+        if (element instanceof HTMLVideoElement)
+        {
+            this.video = element;
+        }
+        else
+        {
+            this.dotNetObjRef.invokeMethodAsync(
+                'SetError',
+                'Barcode Detection API is not supported.');
+        }
+
+        if (!this.hasBarcodeSupport())
         {
             this.barcodeDetector = new BarcodeDetector();
         }
@@ -53,7 +65,24 @@ class BarcodeReader
     {
         if (!('BarcodeDetector' in window))
             return false;
-        return await BarcodeDetector.getSupportedFormats().length > 0;
+        const formats = await (BarcodeDetector as BarcodeDetector).getSupportedFormats();
+        return formats.length > 0;
+    }
+
+    dispose()
+    {
+        this.dotNetObjRef.invokeMethodAsync('SetScanning', false);
+
+        if (this.video.srcObject instanceof MediaStream)
+        {
+            this.video.srcObject.getTracks().forEach(track =>
+            {
+                if (track.readyState === 'live')
+                    track.stop();
+            });
+        }
+
+        this.video.srcObject = null;
     }
 
     async start()
@@ -74,17 +103,16 @@ class BarcodeReader
             audio: false
         });
 
-        const video = document.querySelector(`#${this.videoElementId}`) as HTMLVideoElement;
-        video.srcObject = stream;
-        await video.play();
+        this.video.srcObject = stream;
+        await this.video.play();
 
         this.dotNetObjRef.invokeMethodAsync('SetScanning', true);
-        this.detect(video);
+        this.detect();
     }
 
-    async detect(video: HTMLVideoElement)
+    async detect()
     {
-        await this.barcodeDetector.detect(video)
+        await this.barcodeDetector.detect(this.video)
             .then(detectedBarcodes =>
             {
                 if (detectedBarcodes.length > 0)
@@ -99,9 +127,9 @@ class BarcodeReader
         {
             this.dotNetObjRef.invokeMethodAsync('SetScanning', false);
 
-            if (video.srcObject instanceof MediaStream)
+            if (this.video.srcObject instanceof MediaStream)
             {
-                video.srcObject.getTracks().forEach(track =>
+                this.video.srcObject.getTracks().forEach(track =>
                 {
                     if (track.readyState === 'live')
                         track.stop();
@@ -111,7 +139,7 @@ class BarcodeReader
         }
 
         await new Promise(resolve => setTimeout(resolve, 250));
-        this.detect(video);
+        this.detect();
     }
 }
 

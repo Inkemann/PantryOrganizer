@@ -1,4 +1,4 @@
-@implements IDisposable
+@implements IAsyncDisposable
 @inject IJSRuntime JsRuntime
 
 
@@ -8,6 +8,9 @@
     private string videoElementId = $"barcode-reader-{Guid.NewGuid()}";
     private DotNetObjectReference<BarcodeReader>? thisReference;
     private IJSObjectReference? jsReference;
+
+    private bool hasRendered;
+    private bool shouldStart;
 
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? InputAttributes { get; set; }
@@ -22,6 +25,12 @@
     public EventCallback<string> OnScanned { get; set; }
 
     [Parameter]
+    public bool HasBarcodeSupport { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> HasBarcodeSupportChanged { get; set; }
+
+    [Parameter]
     public bool IsScanning { get; set; }
 
     [Parameter]
@@ -29,9 +38,11 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender)
+            return;
+
         try
         {
-            if (!firstRender) return;
             thisReference = DotNetObjectReference.Create(this);
             await using var module = await JsRuntime.InvokeAsync<IJSObjectReference>(
                 "import",
@@ -42,34 +53,54 @@
                 thisReference,
                 videoElementId,
                 StopOnFirstScan);
+
+            HasBarcodeSupport = await (jsReference?.InvokeAsync<bool>("hasBarcodeSupport")
+                ?? ValueTask.FromResult(false));
+            await HasBarcodeSupportChanged.InvokeAsync(HasBarcodeSupport);
+
+
+            hasRendered = true;
+
+            if (shouldStart)
+                await Start();
         }
         catch (Exception e)
         {
-            await (OnError.InvokeAsync(e) ?? Task.CompletedTask);
+            await OnError.InvokeAsync(e);
         }
     }
 
-    public void Start()
-        => jsReference?.InvokeVoidAsync("start");
+    public async ValueTask Start()
+    {
+        if (hasRendered)
+            await (jsReference?.InvokeVoidAsync("start") ?? ValueTask.CompletedTask);
+        else
+            shouldStart = true;
+    }
+
 
     [JSInvokable]
-    public async Task SetError(string error)
+    public async ValueTask SetError(string error)
         => await OnError.InvokeAsync(new Exception(error));
 
     [JSInvokable]
-    public async Task SetResult(string result)
+    public async ValueTask SetResult(string result)
         => await OnScanned.InvokeAsync(result);
 
     [JSInvokable]
-    public async Task SetScanning(bool isScanning)
+    public async ValueTask SetScanning(bool isScanning)
     {
         IsScanning = isScanning;
         await IsScanningChanged.InvokeAsync(IsScanning);
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        jsReference?.DisposeAsync();
+        if (jsReference is not null)
+        {
+            await jsReference.InvokeVoidAsync("dispose");
+            await jsReference.DisposeAsync();
+        }
         thisReference?.Dispose();
     }
 }
