@@ -9,7 +9,7 @@
 <div class="row gy-2 gy-md-4">
     <BarcodeReader @ref="BarcodeReader" OnScanned="OnBarcodeScanned" StopOnFirstScan="true" @bind-IsScanning="IsScanning" @bind-HasBarcodeSupport="HasBarcodeSupport" class="d-none" />
 
-    <div class="d-flex gap-2 align-items-center">
+    <div class="d-flex gap-2 align-items-center justify-content-between">
         <h1>@Localizer["Storage items"]</h1>
         @if (HasBarcodeSupport)
         {
