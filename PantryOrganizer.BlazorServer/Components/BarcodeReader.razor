@@ -2,10 +2,10 @@
 @inject IJSRuntime JsRuntime
 
 
-<video id="@videoElementId" @attributes="InputAttributes" muted></video>
+<video @ref="videoElement" @attributes="InputAttributes" muted></video>
 
 @code {
-    private string videoElementId = $"barcode-reader-{Guid.NewGuid()}";
+    private ElementReference videoElement;
     private DotNetObjectReference<BarcodeReader>? thisReference;
     private IJSObjectReference? jsReference;
 
@@ -51,7 +51,7 @@
             jsReference = await module.InvokeAsync<IJSObjectReference>(
                 "GetInstace",
                 thisReference,
-                videoElementId,
+                videoElement,
                 StopOnFirstScan);
 
             HasBarcodeSupport = await (jsReference?.InvokeAsync<bool>("hasBarcodeSupport")

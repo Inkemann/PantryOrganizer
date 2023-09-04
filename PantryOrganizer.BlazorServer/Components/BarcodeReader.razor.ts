@@ -23,42 +23,22 @@ interface BarcodeDetector
 class BarcodeReader
 {
     dotNetObjRef: DotNetObjectReference;
-    video: HTMLVideoElement;
-    stopOnFirstScan: boolean;
+    video: HTMLVideoElement = null;
+    stopOnFirstScan: boolean = false;
     barcodeDetector: BarcodeDetector = null;
     detections: number = 0;
 
     constructor(
         dotNetObjRef: DotNetObjectReference,
-        videoElementId: string,
+        element: HTMLVideoElement,
         stopOnFirstScan: boolean)
     {
         this.dotNetObjRef = dotNetObjRef;
         this.stopOnFirstScan = stopOnFirstScan;
+        this.video = element;
 
-        const element = document.querySelector(`#${videoElementId}`);
-
-        if (element instanceof HTMLVideoElement)
-        {
-            this.video = element;
-        }
-        else
-        {
-            this.dotNetObjRef.invokeMethodAsync(
-                'SetError',
-                'Barcode Detection API is not supported.');
-        }
-
-        if (!this.hasBarcodeSupport())
-        {
+        if (this.hasBarcodeSupport())
             this.barcodeDetector = new BarcodeDetector();
-        }
-        else
-        {
-            this.dotNetObjRef.invokeMethodAsync(
-                'SetError',
-                'Barcode Detection API is not supported.');
-        }
     }
 
     async hasBarcodeSupport(): Promise<boolean>
@@ -92,6 +72,7 @@ class BarcodeReader
             this.dotNetObjRef.invokeMethodAsync(
                 'SetError',
                 'Barcode Detection API is not supported.');
+            return;
         }
 
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -145,8 +126,8 @@ class BarcodeReader
 
 export function GetInstace(
     dotNetObjRef: DotNetObjectReference,
-    videoElementId: string,
+    element: HTMLVideoElement,
     stopOnFirstScan: boolean)
 {
-    return new BarcodeReader(dotNetObjRef, videoElementId, stopOnFirstScan);
+    return new BarcodeReader(dotNetObjRef, element, stopOnFirstScan);
 }
