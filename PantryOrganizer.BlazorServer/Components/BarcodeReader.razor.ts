@@ -27,6 +27,7 @@ class BarcodeReader
     stopOnFirstScan: boolean = false;
     barcodeDetector: BarcodeDetector = null;
     detections: number = 0;
+    scanIntervalMillis: number = 250;
 
     constructor(
         dotNetObjRef: DotNetObjectReference,
@@ -47,9 +48,9 @@ class BarcodeReader
             return false;
         const formats = await (BarcodeDetector as BarcodeDetector).getSupportedFormats();
         return formats.length > 0;
-    }
+    } 
 
-    dispose()
+    stop()
     {
         this.dotNetObjRef.invokeMethodAsync('SetScanning', false);
 
@@ -63,6 +64,7 @@ class BarcodeReader
         }
 
         this.video.srcObject = null;
+        this.detections = 0;
     }
 
     async start()
@@ -91,35 +93,27 @@ class BarcodeReader
         this.detect();
     }
 
-    async detect()
+    private async detect()
     {
         await this.barcodeDetector.detect(this.video)
             .then(detectedBarcodes =>
             {
                 if (detectedBarcodes.length > 0)
                 {
+                    console.log(detectedBarcodes);
                     this.detections++;
-                    this.dotNetObjRef.invokeMethodAsync('SetResult', detectedBarcodes[0].rawValue);
+                    this.dotNetObjRef.invokeMethodAsync('SetResult', detectedBarcodes);
                 }
             })
             .catch(error => this.dotNetObjRef.invokeMethodAsync('SetError', error));
 
         if (this.stopOnFirstScan && this.detections > 0)
         {
-            this.dotNetObjRef.invokeMethodAsync('SetScanning', false);
-
-            if (this.video.srcObject instanceof MediaStream)
-            {
-                this.video.srcObject.getTracks().forEach(track =>
-                {
-                    if (track.readyState === 'live')
-                        track.stop();
-                });
-            }
+            this.stop();
             return;
         }
 
-        await new Promise(resolve => setTimeout(resolve, 250));
+        await new Promise(resolve => setTimeout(resolve, this.scanIntervalMillis));
         this.detect();
     }
 }

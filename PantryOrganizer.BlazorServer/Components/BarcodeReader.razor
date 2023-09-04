@@ -1,3 +1,4 @@
+@using System.Text.Json.Serialization;
 @implements IAsyncDisposable
 @inject IJSRuntime JsRuntime
 
@@ -22,7 +23,7 @@
     public EventCallback<Exception> OnError { get; set; }
 
     [Parameter]
-    public EventCallback<string> OnScanned { get; set; }
+    public EventCallback<IEnumerable<BarcodeResult>> OnScanned { get; set; }
 
     [Parameter]
     public bool HasBarcodeSupport { get; set; }
@@ -78,13 +79,16 @@
             shouldStart = true;
     }
 
+    public async ValueTask Stop()
+        => await (jsReference?.InvokeVoidAsync("stop") ?? ValueTask.CompletedTask);
+
 
     [JSInvokable]
     public async ValueTask SetError(string error)
         => await OnError.InvokeAsync(new Exception(error));
 
     [JSInvokable]
-    public async ValueTask SetResult(string result)
+    public async ValueTask SetResult(IEnumerable<BarcodeResult> result)
         => await OnScanned.InvokeAsync(result);
 
     [JSInvokable]
@@ -98,9 +102,63 @@
     {
         if (jsReference is not null)
         {
-            await jsReference.InvokeVoidAsync("dispose");
+            await jsReference.InvokeVoidAsync("stop");
             await jsReference.DisposeAsync();
         }
         thisReference?.Dispose();
+    }
+
+    public struct BarcodeResult
+    {
+        [JsonPropertyName("rawValue")]
+        public string Value { get; set; }
+
+
+        [JsonPropertyName("format")]
+        public string Format { get; set; }
+
+
+        [JsonPropertyName("boundingBox")]
+        public BoundingBox BoundingBox { get; set; }
+
+
+        [JsonPropertyName("cornerPoints")]
+        public CornerPoint[] CornerPoints { get; set; }
+    }
+
+    public struct BoundingBox
+    {
+        [JsonPropertyName("x")]
+        public double XCoordinate { get; set; }
+
+        [JsonPropertyName("y")]
+        public double YCoordinate { get; set; }
+
+        [JsonPropertyName("width")]
+        public double Width { get; set; }
+
+        [JsonPropertyName("height")]
+        public double Height { get; set; }
+
+        [JsonPropertyName("top")]
+        public double Top { get; set; }
+
+        [JsonPropertyName("bottom")]
+        public double Bottom { get; set; }
+
+        [JsonPropertyName("left")]
+        public double Left { get; set; }
+
+        [JsonPropertyName("right")]
+        public double Right { get; set; }
+    }
+
+    public struct CornerPoint
+    {
+        [JsonPropertyName("x")]
+        public double XCoordinate { get; set; }
+
+        [JsonPropertyName("y")]
+        public double YCoordinate { get; set; }
     }
 }
