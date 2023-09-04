@@ -11,7 +11,7 @@
 <EditForm Model="@StorageItem" OnValidSubmit="@Save">
     <FluentValidationValidator DisableAssemblyScanning="true" />
 
-    <BarcodeReader @ref="BarcodeReader" OnScanned="OnBarcodeScanned" StopOnFirstScan="true" @bind-IsScanning="IsScanning" class="d-none" />
+    <BarcodeReader @ref="BarcodeReader" OnScanned="OnBarcodeScanned" StopOnFirstScan="true" @bind-IsScanning="IsScanning" @bind-HasBarcodeSupport="HasBarcodeSupport" class="d-none" />
 
     <div class="row gy-2 gy-md-4">
         @if (Group.Count() > 1)
@@ -97,14 +97,14 @@
             <ValidationMessage For="() => StorageItem.Note"></ValidationMessage>
         </div>
         <div class="col-md-4 col-xxl-3">
-            <label class="form-label d-flex gap-2">
+            <label class="form-label d-flex" @onclick="ToggleScan">
                 <span>@Localizer["EAN"]</span>
-                @if (IsScanning)
+                @if (HasBarcodeSupport)
                 {
-                    <span class="oi oi-media-record" style="color: green"></span>
+                    <span class="oi oi-media-record mx-2" style="color: @(IsScanning ? "green" : "red")"></span>
                 }
-                </label>
-            <InputText class="form-control" @bind-Value="StorageItem.Ean" readonly @onclick="() => BarcodeReader?.Start()" />
+            </label>
+            <InputText class="form-control" @bind-Value="StorageItem.Ean" readonly />
             <ValidationMessage For="() => StorageItem.Ean"></ValidationMessage>
         </div>
         <button class="btn btn-primary" type="submit">
@@ -140,6 +140,8 @@
     private StorageItemDto StorageItem { get; set; } = new StorageItemDto();
 
     public BarcodeReader? BarcodeReader { get; set; }
+
+    public bool HasBarcodeSupport { get; set; }
 
     public bool IsScanning { get; set; }
 
@@ -251,8 +253,20 @@
         Navigation.NavigateTo($"storageitem/{id}");
     }
 
-    private void OnBarcodeScanned(string result)
+    private void OnBarcodeScanned(IEnumerable<BarcodeReader.BarcodeResult> result)
     {
-        Navigation.NavigateTo($"storageitem?Ean={result}");
+        if (result.Any())
+            StorageItem.Ean = result.First().Value;
+    }
+
+    private void ToggleScan()
+    {
+        if (HasBarcodeSupport)
+        {
+            if (IsScanning)
+                BarcodeReader?.Stop();
+            else
+                BarcodeReader?.Start();
+        }
     }
 }
