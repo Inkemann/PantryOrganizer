@@ -40,8 +40,8 @@
         </div>
         <div class="col-md-4 col-xxl-3">
             <label class="form-label d-flex justify-content-between">
-                <span>@Localizer["Remaining percentage"]</span>
-                <span>@($"{PercentageSliderValue} %")</span>
+                <span>@Localizer["Remaining"]</span>
+                <span>@($"{StorageItem.RemainingPercentage:P0} ({StorageItem.RemainingQuantity:0.##} {(StorageItem.RemainingQuantity == 1 ? StorageItem.Unit?.Abbreviation : StorageItem.Unit?.AbbreviationPlural)})")</span>
             </label>
             <InputRange type="range" class=" form-control form-range border-0" @bind-Value="PercentageSliderValue" Format="G0" min="10" max="100" step="10" />
             <ValidationMessage For="() => StorageItem.Quantity"></ValidationMessage>

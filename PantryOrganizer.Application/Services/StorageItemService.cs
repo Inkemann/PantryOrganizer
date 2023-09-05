@@ -52,7 +52,8 @@ public class StorageItemService :
                     ItemCount = group.Count(),
                     Name = group.Key.Name,
                     Quantity = group.Sum(item =>
-                        item.Quantity * (decimal)item.Unit!.BaseConversionFactor!),
+                        item.Quantity * (decimal)item.Unit!.BaseConversionFactor!
+                        * (decimal)(item.RemainingPercentage ?? 1d)),
                     Unit = context.Set<Unit>()
                         .Single(unit =>
                             unit.DimensionId == group.Key.DimensionId && unit.IsBase),

@@ -25,6 +25,8 @@ public class StorageItemDto : IIdDto<Guid>
     public bool IsCloseToExpiration
         => ExpirationDate.HasValue
             && ExpirationDate.Value.Subtract(DateTime.Now) <= new TimeSpan(7, 0, 0, 0);
+
+    public decimal? RemainingQuantity => (decimal)(RemainingPercentage ?? 1d) * Quantity;
 }
 
 public class StorageItemFilterDto
