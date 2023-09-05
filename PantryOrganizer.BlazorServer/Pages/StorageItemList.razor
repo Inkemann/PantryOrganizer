@@ -65,6 +65,17 @@
                                         <span class="oi oi-caret-right"></span>
                                     }
                                 }
+                                else
+                                {
+                                    @if (GetOrInitItems(storageItemGroup).First().IsExpired)
+                                    {
+                                        <span class="oi oi-warning" style="color: red"></span>
+                                    }
+                                    else if (GetOrInitItems(storageItemGroup).First().IsCloseToExpiration)
+                                    {
+                                        <span class="oi oi-warning" style="color: orange"></span>
+                                    }
+                                }
                             </td>
                             <td>
                                 <a href="@($"storageitem/{GetOrInitItems(storageItemGroup).First().Id}")">
@@ -76,7 +87,7 @@
                             <td>
                                 <a href="@($"storageitem/{GetOrInitItems(storageItemGroup).First().Id}")">
                                     <span>
-                                        @($"{storageItemGroup.Quantity:G0} {(storageItemGroup.Quantity == 1 ? storageItemGroup.Unit?.Abbreviation : storageItemGroup.Unit?.AbbreviationPlural)}")
+                                        @($"{storageItemGroup.Quantity:0.##} {(storageItemGroup.Quantity == 1 ? storageItemGroup.Unit?.Abbreviation : storageItemGroup.Unit?.AbbreviationPlural)}")
                                     </span>
                                 </a>
                             </td>
@@ -105,8 +116,14 @@
                                     <td>
                                         <a href="@($"storageitem/{storageItem.Id}")">
                                             <span>
-                                                @($"{storageItem.Quantity:G0} {(storageItem.Quantity == 1 ? storageItem.Unit?.Abbreviation : storageItem.Unit?.AbbreviationPlural)}")
+                                                @($"{storageItem.RemainingQuantity:0.##} {(storageItem.RemainingQuantity == 1 ? storageItem.Unit?.Abbreviation : storageItem.Unit?.AbbreviationPlural)}")
                                             </span>
+                                            @if (storageItem.RemainingPercentage.HasValue && storageItem.RemainingPercentage.Value != 1d)
+                                            {
+                                                <span>
+                                                    @($" ({storageItem.RemainingPercentage:P0})")
+                                                </span>
+                                            }
                                         </a>
                                     </td>
                                 </tr>
